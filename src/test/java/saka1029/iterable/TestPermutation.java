@@ -28,6 +28,16 @@ public class TestPermutation {
         assertEquals(6, count(3, 3));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testCountIllegalN() {
+        count(-1, 0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testCountIllegalK() {
+        count(0, -1);
+    }
+
     static final int[][] PERM_0_0 = {{}};
     static final int[][] PERM_0_1 = {};
     static final int[][] PERM_0_2 = {};
@@ -67,5 +77,25 @@ public class TestPermutation {
         assertArrayEquals(PERM_3_1, toIntArray2D(iterable(3, 1)));
         assertArrayEquals(PERM_3_2, toIntArray2D(iterable(3, 2)));
         assertArrayEquals(PERM_3_3, toIntArray2D(iterable(3, 3)));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testIterableIllgalN() {
+        iterable(-1, 0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testIterableIllgalK() {
+        iterable(0, -1);
+    }
+
+    @Test
+    public void testIterableIntArray() {
+        assertArrayEquals(new int[][] {{10, 20}, {20, 10}}, stream(iterable(new int[] {10, 20}, 2)).toArray(int[][]::new));
+    }
+
+    @Test
+    public void testIterableList() {
+        assertEquals(list(list("a", "b"), list("b", "a")), list(iterable(list("a", "b"), 2)));
     }
 }

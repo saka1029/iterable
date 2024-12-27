@@ -14,18 +14,26 @@ public class Iterables {
     private Iterables() {
     }
 
-    public static <T> List<T> list(Supplier<List<T>> creator, @SuppressWarnings("unchecked") T... elements) {
+    @SafeVarargs
+    public static <T> List<T> list(T... elements) {
+        return List.of(elements);
+    }
+
+    @SafeVarargs
+    public static <T> List<T> list(Supplier<List<T>> creator, T... elements) {
         List<T> result = creator.get();
         for (T e : elements)
             result.add(e);
         return result;
     }
 
-    public static <T> ArrayList<T> arrayList(@SuppressWarnings("unchecked") T... elements) {
+    @SafeVarargs
+    public static <T> ArrayList<T> arrayList(T... elements) {
         return (ArrayList<T>) list(ArrayList::new, elements);
     }
 
-    public static <T> LinkedList<T> linkedList(@SuppressWarnings("unchecked") T... elements) {
+    @SafeVarargs
+    public static <T> LinkedList<T> linkedList(T... elements) {
         return (LinkedList<T>) list(LinkedList::new, elements);
     }
 
@@ -34,6 +42,10 @@ public class Iterables {
         for (T e : source)
             result.add(e);
         return result;
+    }
+
+    public static <T> List<T> list(Iterable<T> source) {
+        return arrayList(source);
     }
 
     public static <T> ArrayList<T> arrayList(Iterable<T> source) {
