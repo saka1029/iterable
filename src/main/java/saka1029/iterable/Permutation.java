@@ -70,24 +70,10 @@ public class Permutation {
     }
 
     public static <T> Iterable<int[]> iterable(int[] choices, int k) {
-        return Iterables.map(choices, iterable(choices.length, k));
+        return Iterables.indexMap(choices, iterable(choices.length, k));
     }
 
     public static <T> Iterable<List<T>> iterable(List<T> choices, int k) {
-        return Iterables.map(choices, iterable(choices.size(), k));
+        return Iterables.indexMap(choices, iterable(choices.size(), k));
     }
-
-    public static Stream<int[]> stream(int n, int k) {
-        return Iterables.stream(iterable(n, k));
-    }
-
-    public static Stream<int[]> stream(int[] choices, int k) {
-        return Iterables.stream(iterable(choices, k));
-
-    }
-
-    public static <T> Stream<List<T>> stream(List<T> choices, int k) {
-        return Iterables.stream(iterable(choices, k));
-    }
-
 }

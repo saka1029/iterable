@@ -67,7 +67,7 @@ public class Iterables {
         return list;
     }
 
-    public static Iterable<int[]> map(int[] list, Iterable<int[]> source) {
+    public static Iterable<int[]> indexMap(int[] list, Iterable<int[]> source) {
         return map(ints -> {
             int[] result = new int[ints.length];
             int j = 0;
@@ -77,7 +77,7 @@ public class Iterables {
         }, source);
     }
 
-    public static <T> Iterable<List<T>> map(List<T> list, Iterable<int[]> source) {
+    public static <T> Iterable<List<T>> indexMap(List<T> list, Iterable<int[]> source) {
         return map(ints -> {
             List<T> result = fixedSizeList(ints.length);
             int j = 0;
