@@ -16,9 +16,9 @@ public class TestCombinationRecursive {
                 if (i >= k)
                     callback.accept(selected.clone());
                 else
-                    for (int t = j; t < n; ++t) {
-                        selected[i] = t;
-                        solve(i + 1, t + 1);
+                    for (; j < n; ++j) {
+                        selected[i] = j;
+                        solve(i + 1, j + 1);
                     }
             }
         }.solve(0, 0);
