@@ -51,15 +51,15 @@ public class TestCombinationRecursive {
 
     @Test
     public void testCombination() {
-        // assertArrayEquals(COMB_0_0, combination(0, 0));
-        // assertArrayEquals(COMB_0_1, combination(0, 1));
-        // assertArrayEquals(COMB_0_2, combination(0, 2));
-        // assertArrayEquals(COMB_0_3, combination(0, 3));
-        // assertArrayEquals(COMB_1_0, combination(1, 0));
-        // assertArrayEquals(COMB_1_1, combination(1, 1));
-        // assertArrayEquals(COMB_1_2, combination(1, 2));
-        // assertArrayEquals(COMB_1_3, combination(1, 3));
-        // assertArrayEquals(COMB_2_0, combination(2, 0));
+        assertArrayEquals(COMB_0_0, combination(0, 0));
+        assertArrayEquals(COMB_0_1, combination(0, 1));
+        assertArrayEquals(COMB_0_2, combination(0, 2));
+        assertArrayEquals(COMB_0_3, combination(0, 3));
+        assertArrayEquals(COMB_1_0, combination(1, 0));
+        assertArrayEquals(COMB_1_1, combination(1, 1));
+        assertArrayEquals(COMB_1_2, combination(1, 2));
+        assertArrayEquals(COMB_1_3, combination(1, 3));
+        assertArrayEquals(COMB_2_0, combination(2, 0));
         assertArrayEquals(COMB_2_1, combination(2, 1));
         assertArrayEquals(COMB_2_2, combination(2, 2));
         assertArrayEquals(COMB_2_3, combination(2, 3));
