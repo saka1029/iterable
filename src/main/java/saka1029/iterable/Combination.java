@@ -2,7 +2,6 @@ package saka1029.iterable;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.IntStream;
 
 public class Combination {
 
@@ -10,7 +9,12 @@ public class Combination {
     }
 
     /**
-     * 【k > n のとき 0 とする理由】
+     * n個からk個取り出すときの組み合わせ数を返します。
+     * nCr = n! / (n - k)!
+     * 【k &gt; n のとき 0 とする理由】
+     * k &gt; n のときは分母が負の階乗となって、
+     * この式では計算できません。
+     * ただしWikipediaには以下の記述があります。
      * 二項展開の係数として数 nCk を定義するものと考えれば
      * k = n または k = 0 のとき nCk = 1 ,
      * k &gt; n のとき nCk = 0
@@ -37,18 +41,25 @@ public class Combination {
         if (k < 0) throw new IllegalArgumentException("k must be >= 0");
         return () -> new Iterator<>() {
 
-            final int[] selection = IntStream.range(0, k).toArray();
-            boolean hasNext;
+            int i = 0;  // 次に格納する場所
+            int j = 0;  // 次に格納する値
+            final int[] selected = new int[k];
+            boolean hasNext = advance();
 
             private boolean advance() {
-                for (int i = k - 1; i >= 0; )
-                    if (++selection[i] >= n)
-                        --i;
-                    else if (i + 1 >= k)
-                        return true;
+                while (true) {
+                    if (i >= k) {                   // すべての値が格納されたら
+                        if (--i >= 0)
+                            j = selected[i] + 1;    // 次の格納位置は(k -1)、格納する値は現在格納されている値 + 1
+                        return true;                // 結果を返す。
+                    }
+                    if (i < 0 || j >= n && i <= 0)
+                        return false;
+                    if (j >= n)                     // 格納する値が最大値を超えたら
+                        j = selected[--i] + 1;      // 一つ前に戻る。
                     else
-                        selection[i + 1] = selection[i++];
-                return false;
+                        selected[i++] = j++;        // 格納して次の位置へ進む。
+                }
             }
 
             @Override
@@ -58,7 +69,7 @@ public class Combination {
 
             @Override
             public int[] next() {
-                int[] result = selection.clone();
+                int[] result = selected.clone();
                 hasNext = advance();
                 return result;
             }
