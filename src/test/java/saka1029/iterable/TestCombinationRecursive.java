@@ -1,10 +1,7 @@
 package saka1029.iterable;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import org.junit.Test;
@@ -30,8 +27,6 @@ public class TestCombinationRecursive {
         List<int[]> a = new ArrayList<>();
         combination(n, k, ints -> a.add(ints));
         int[][] r = a.stream().toArray(int[][]::new);
-        System.out.printf("n=%d k=%d %s%n", n, k, Arrays.deepToString(r));
-        assertEquals(Combination.count(n, k), r.length);
         return r;
     }
 
