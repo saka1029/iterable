@@ -1,7 +1,6 @@
 package saka1029.iterable;
 
 import static saka1029.iterable.Iterables.*;
-import static saka1029.iterable.Permutation.*;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
@@ -10,32 +9,32 @@ public class TestPermutation {
 
     @Test
     public void testCount() {
-        assertEquals(1, count(0, 0));
-        assertEquals(0, count(0, 1));
-        assertEquals(0, count(0, 2));
-        assertEquals(0, count(0, 3));
-        assertEquals(1, count(1, 0));
-        assertEquals(1, count(1, 1));
-        assertEquals(0, count(1, 2));
-        assertEquals(0, count(1, 3));
-        assertEquals(1, count(2, 0));
-        assertEquals(2, count(2, 1));
-        assertEquals(2, count(2, 2));
-        assertEquals(0, count(2, 3));
-        assertEquals(1, count(3, 0));
-        assertEquals(3, count(3, 1));
-        assertEquals(6, count(3, 2));
-        assertEquals(6, count(3, 3));
+        assertEquals(1, Permutation.count(0, 0));
+        assertEquals(0, Permutation.count(0, 1));
+        assertEquals(0, Permutation.count(0, 2));
+        assertEquals(0, Permutation.count(0, 3));
+        assertEquals(1, Permutation.count(1, 0));
+        assertEquals(1, Permutation.count(1, 1));
+        assertEquals(0, Permutation.count(1, 2));
+        assertEquals(0, Permutation.count(1, 3));
+        assertEquals(1, Permutation.count(2, 0));
+        assertEquals(2, Permutation.count(2, 1));
+        assertEquals(2, Permutation.count(2, 2));
+        assertEquals(0, Permutation.count(2, 3));
+        assertEquals(1, Permutation.count(3, 0));
+        assertEquals(3, Permutation.count(3, 1));
+        assertEquals(6, Permutation.count(3, 2));
+        assertEquals(6, Permutation.count(3, 3));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testCountIllegalN() {
-        count(-1, 0);
+        Permutation.count(-1, 0);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testCountIllegalK() {
-        count(0, -1);
+        Permutation.count(0, -1);
     }
 
     static final int[][] PERM_0_0 = {{}};
@@ -55,47 +54,45 @@ public class TestPermutation {
     static final int[][] PERM_3_2 = {{0, 1}, {0, 2}, {1, 0}, {1, 2}, {2, 0}, {2, 1}};
     static final int[][] PERM_3_3 = {{0, 1, 2}, {0, 2, 1}, {1, 0, 2}, {1, 2, 0}, {2, 0, 1}, {2, 1, 0}};
 
-    static int[][] toIntArray2D(Iterable<int[]> source) {
-        return stream(source).toArray(int[][]::new);
-    }
-
     @Test
     public void testIterable() {
-        assertArrayEquals(PERM_0_0, toIntArray2D(iterable(0, 0)));
-        assertArrayEquals(PERM_0_1, toIntArray2D(iterable(0, 1)));
-        assertArrayEquals(PERM_0_2, toIntArray2D(iterable(0, 2)));
-        assertArrayEquals(PERM_0_3, toIntArray2D(iterable(0, 3)));
-        assertArrayEquals(PERM_1_0, toIntArray2D(iterable(1, 0)));
-        assertArrayEquals(PERM_1_1, toIntArray2D(iterable(1, 1)));
-        assertArrayEquals(PERM_1_2, toIntArray2D(iterable(1, 2)));
-        assertArrayEquals(PERM_1_3, toIntArray2D(iterable(1, 3)));
-        assertArrayEquals(PERM_2_0, toIntArray2D(iterable(2, 0)));
-        assertArrayEquals(PERM_2_1, toIntArray2D(iterable(2, 1)));
-        assertArrayEquals(PERM_2_2, toIntArray2D(iterable(2, 2)));
-        assertArrayEquals(PERM_2_3, toIntArray2D(iterable(2, 3)));
-        assertArrayEquals(PERM_3_0, toIntArray2D(iterable(3, 0)));
-        assertArrayEquals(PERM_3_1, toIntArray2D(iterable(3, 1)));
-        assertArrayEquals(PERM_3_2, toIntArray2D(iterable(3, 2)));
-        assertArrayEquals(PERM_3_3, toIntArray2D(iterable(3, 3)));
+        assertArrayEquals(PERM_0_0, array(Permutation.iterable(0, 0)));
+        assertArrayEquals(PERM_0_1, array(Permutation.iterable(0, 1)));
+        assertArrayEquals(PERM_0_2, array(Permutation.iterable(0, 2)));
+        assertArrayEquals(PERM_0_3, array(Permutation.iterable(0, 3)));
+        assertArrayEquals(PERM_1_0, array(Permutation.iterable(1, 0)));
+        assertArrayEquals(PERM_1_1, array(Permutation.iterable(1, 1)));
+        assertArrayEquals(PERM_1_2, array(Permutation.iterable(1, 2)));
+        assertArrayEquals(PERM_1_3, array(Permutation.iterable(1, 3)));
+        assertArrayEquals(PERM_2_0, array(Permutation.iterable(2, 0)));
+        assertArrayEquals(PERM_2_1, array(Permutation.iterable(2, 1)));
+        assertArrayEquals(PERM_2_2, array(Permutation.iterable(2, 2)));
+        assertArrayEquals(PERM_2_3, array(Permutation.iterable(2, 3)));
+        assertArrayEquals(PERM_3_0, array(Permutation.iterable(3, 0)));
+        assertArrayEquals(PERM_3_1, array(Permutation.iterable(3, 1)));
+        assertArrayEquals(PERM_3_2, array(Permutation.iterable(3, 2)));
+        assertArrayEquals(PERM_3_3, array(Permutation.iterable(3, 3)));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testIterableIllgalN() {
-        iterable(-1, 0);
+        Permutation.iterable(-1, 0);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testIterableIllgalK() {
-        iterable(0, -1);
+        Permutation.iterable(0, -1);
     }
 
     @Test
     public void testIterableIntArray() {
-        assertArrayEquals(new int[][] {{10, 20}, {20, 10}}, stream(iterable(new int[] {10, 20}, 2)).toArray(int[][]::new));
+        assertArrayEquals(new int[][] {{10, 20}, {20, 10}},
+            array(Permutation.iterable(array(10, 20), 2)));
     }
 
     @Test
     public void testIterableList() {
-        assertEquals(list(list("a", "b"), list("b", "a")), list(iterable(list("a", "b"), 2)));
+        assertEquals(list(list("a", "b"), list("b", "a")),
+            list(Permutation.iterable(list("a", "b"), 2)));
     }
 }

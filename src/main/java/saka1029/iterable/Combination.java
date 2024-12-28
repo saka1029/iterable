@@ -47,8 +47,8 @@ public class Combination {
             boolean hasNext = advance();
 
             private boolean advance() {
-                if (k > n)
-                    return false;
+                // if (k > n)
+                //     return false;
                 while (true) {
                     if (i >= k) {                   // すべての値が格納されたら
                         if (--i >= 0)

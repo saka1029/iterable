@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -27,16 +28,6 @@ public class Iterables {
         return result;
     }
 
-    @SafeVarargs
-    public static <T> ArrayList<T> arrayList(T... elements) {
-        return (ArrayList<T>) list(ArrayList::new, elements);
-    }
-
-    @SafeVarargs
-    public static <T> LinkedList<T> linkedList(T... elements) {
-        return (LinkedList<T>) list(LinkedList::new, elements);
-    }
-
     public static <T> List<T> list(Supplier<List<T>> creator, Iterable<T> source) {
         List<T> result = creator.get();
         for (T e : source)
@@ -48,12 +39,34 @@ public class Iterables {
         return arrayList(source);
     }
 
+    @SafeVarargs
+    public static <T> ArrayList<T> arrayList(T... elements) {
+        return (ArrayList<T>) list(ArrayList::new, elements);
+    }
+
     public static <T> ArrayList<T> arrayList(Iterable<T> source) {
-        return (ArrayList<T>) list(ArrayList::new, source);
+    return (ArrayList<T>) list(ArrayList::new, source);
+    }
+
+    @SafeVarargs
+    public static <T> LinkedList<T> linkedList(T... elements) {
+        return (LinkedList<T>) list(LinkedList::new, elements);
     }
 
     public static <T> LinkedList<T> linkedList(Iterable<T> source) {
         return (LinkedList<T>) list(LinkedList::new, source);
+    }
+
+    public static int[] array(int... elements) {
+        return elements.clone();
+    }
+
+    public static <T> T[] array(IntFunction<T[]> creator, Iterable<T> source) {
+        return stream(source).toArray(creator);
+    }
+
+    public static int[][] array(Iterable<int[]> source) {
+        return stream(source).toArray(int[][]::new);
     }
 
     public static <T, U> Iterable<U> map(Function<T, U> mapper, Iterable<T> source) {
@@ -72,13 +85,6 @@ public class Iterables {
         };
     }
 
-    public static <T> List<T> fixedSizeList(int n) {
-        List<T> list = new ArrayList<>();
-        for (int i = 0; i < n; ++i)
-            list.add(null);
-        return list;
-    }
-
     public static Iterable<int[]> indexMap(int[] list, Iterable<int[]> source) {
         return map(ints -> {
             int[] result = new int[ints.length];
@@ -91,10 +97,9 @@ public class Iterables {
 
     public static <T> Iterable<List<T>> indexMap(List<T> list, Iterable<int[]> source) {
         return map(ints -> {
-            List<T> result = fixedSizeList(ints.length);
-            int j = 0;
+            List<T> result = new ArrayList<>();
             for (int i : ints)
-                result.set(j++, list.get(i));
+                result.add(list.get(i));
             return result;
         }, source);
     }
