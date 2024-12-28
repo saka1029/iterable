@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.IntFunction;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -102,6 +103,34 @@ public class Iterables {
                 result.add(list.get(i));
             return result;
         }, source);
+    }
+
+    public static <T> Iterable<T> filter(Predicate<T> predicate, Iterable<T> source) {
+        return () -> new Iterator<>() {
+
+            final Iterator<T> iterator = source.iterator();
+            T next;
+            boolean hasNext = advance();
+
+            private boolean advance() {
+                while (iterator.hasNext())
+                    if (predicate.test(next = iterator.next()))
+                        return true;
+                return false;
+            }
+
+            @Override
+            public boolean hasNext() {
+                return hasNext;
+            }
+
+            @Override
+            public T next() {
+                T result = next;
+                hasNext = advance();
+                return result;
+            }
+        };
     }
 
     public static <T> Stream<T> stream(Iterable<T> iterable) {
