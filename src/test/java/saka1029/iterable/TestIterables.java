@@ -38,18 +38,21 @@ public class TestIterables {
 
     @Test
     public void testArray() {
-        assertArrayEquals(new String[] {"a", "b", "c"}, array(String[]::new, list("a", "b", "c")));
+        assertArrayEquals(new String[] {"a", "b", "c"},
+            array(String[]::new, list("a", "b", "c")));
     }
 
     @Test
     public void testFilter() {
-        assertEquals(list(1, 3), list(filter(x -> x % 2 != 0, list(0, 1, 2, 3))));
+        assertEquals(list(1, 3),
+            list(
+                filter(x -> x % 2 != 0,
+                    list(0, 1, 2, 3))));
     }
 
     @Test
     public void testStream() {
-        List<Integer> result = Iterables.stream(List.of(1, 2, 3)).toList();
-        assertEquals(List.of(1, 2, 3), result);
+        assertEquals(list(1, 2, 3), stream(List.of(1, 2, 3)).toList());
     }
 
 }
