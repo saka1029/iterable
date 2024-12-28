@@ -87,12 +87,12 @@ public class TestCombination {
     @Test
     public void testIterableIntArray() {
         assertArrayEquals(new int[][] {{10}, {20}},
-            array(Combination.iterable(array(10, 20), 1)));
+            array(Combination.iterable(arrayOf(10, 20), 1)));
     }
 
     @Test
     public void testIterableList() {
-        assertEquals(list(list("a"), list("b")),
-            list(Combination.iterable(list("a", "b"), 1)));
+        assertEquals(listOf(listOf("a"), listOf("b")),
+            list(Combination.iterable(listOf("a", "b"), 1)));
     }
 }

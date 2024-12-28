@@ -17,12 +17,12 @@ public class Iterables {
     }
 
     @SafeVarargs
-    public static <T> List<T> list(T... elements) {
+    public static <T> List<T> listOf(T... elements) {
         return List.of(elements);
     }
 
     @SafeVarargs
-    public static <T> List<T> list(Supplier<List<T>> creator, T... elements) {
+    public static <T> List<T> listOf(Supplier<List<T>> creator, T... elements) {
         List<T> result = creator.get();
         for (T e : elements)
             result.add(e);
@@ -40,9 +40,16 @@ public class Iterables {
         return arrayList(source);
     }
 
+    public static List<Integer> intListOf(int... elements) {
+        List<Integer> result = new ArrayList<>();
+        for (int i : elements)
+            result.add(i);
+        return result;
+    }
+
     @SafeVarargs
-    public static <T> ArrayList<T> arrayList(T... elements) {
-        return (ArrayList<T>) list(ArrayList::new, elements);
+    public static <T> ArrayList<T> arrayListOf(T... elements) {
+        return (ArrayList<T>) listOf(ArrayList::new, elements);
     }
 
     public static <T> ArrayList<T> arrayList(Iterable<T> source) {
@@ -50,15 +57,15 @@ public class Iterables {
     }
 
     @SafeVarargs
-    public static <T> LinkedList<T> linkedList(T... elements) {
-        return (LinkedList<T>) list(LinkedList::new, elements);
+    public static <T> LinkedList<T> linkedListOf(T... elements) {
+        return (LinkedList<T>) listOf(LinkedList::new, elements);
     }
 
     public static <T> LinkedList<T> linkedList(Iterable<T> source) {
         return (LinkedList<T>) list(LinkedList::new, source);
     }
 
-    public static int[] array(int... elements) {
+    public static int[] arrayOf(int... elements) {
         return elements.clone();
     }
 

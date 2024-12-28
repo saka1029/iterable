@@ -1,6 +1,7 @@
 package saka1029.iterable;
 
 import static saka1029.iterable.Iterables.*;
+import java.util.stream.IntStream;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
@@ -87,12 +88,36 @@ public class TestPermutation {
     @Test
     public void testIterableIntArray() {
         assertArrayEquals(new int[][] {{10, 20}, {20, 10}},
-            array(Permutation.iterable(array(10, 20), 2)));
+            array(Permutation.iterable(arrayOf(10, 20), 2)));
     }
 
     @Test
     public void testIterableList() {
-        assertEquals(list(list("a", "b"), list("b", "a")),
-            list(Permutation.iterable(list("a", "b"), 2)));
+        assertEquals(listOf(listOf("a", "b"), listOf("b", "a")),
+            list(Permutation.iterable(listOf("a", "b"), 2)));
+    }
+
+    static int number(int... digits) {
+        return IntStream.of(digits).reduce(0, (a, b) -> 10 * a + b);
+    }
+
+    /**
+     * <pre>
+     * 0 1 2 3 4 5 6 7
+     * S E N D M O R Y
+     * </pre>
+     */
+    static boolean isSendMoreMoney(int s, int e, int n, int d, int m, int o, int r, int y) {
+        return s != 0 && m != 0
+            && number(s, e, n, d) + number(m, o, r, e) == number(m, o, n, e, y);
+    }
+
+    @Test
+    public void TestSendMoreMoney() {
+        assertEquals(listOf(listOf(9, 5, 6, 7, 1, 0, 8, 2)),
+            list(
+                map(ints -> intListOf(ints),
+                    filter(d -> isSendMoreMoney(d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7]),
+                        Permutation.iterable(10, 8)))));
     }
 }
