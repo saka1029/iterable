@@ -53,7 +53,7 @@ public class Combination {
                             j = selected[i] + 1;    // 次の格納位置は(k -1)、格納する値は現在格納されている値 + 1
                         return true;                // 結果を返す。
                     }
-                    if (i < 0 || j >= n && i <= 0)
+                    if (i < 0 || j >= n && i <= 0)  // 先頭で格納する値がなければすべて終了する。
                         return false;
                     if (j >= n)                     // 格納する値が最大値を超えたら
                         j = selected[--i] + 1;      // 一つ前に戻る。
