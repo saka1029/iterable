@@ -1,9 +1,12 @@
 package saka1029.iterable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.IntFunction;
@@ -56,33 +59,6 @@ public class Iterables {
     /*
      * Converters
      */
-    public static <T> T[] array(IntFunction<T[]> constructor, Iterable<T> source) {
-        return stream(source).toArray(constructor);
-    }
-
-    public static int[][] array(Iterable<int[]> source) {
-        return stream(source).toArray(int[][]::new);
-    }
-
-    public static <T> List<T> list(Supplier<List<T>> constructor, Iterable<T> source) {
-        List<T> result = constructor.get();
-        for (T e : source)
-            result.add(e);
-        return result;
-    }
-
-    public static <T> List<T> list(Iterable<T> source) {
-        return arrayList(source);
-    }
-
-    public static <T> ArrayList<T> arrayList(Iterable<T> source) {
-    return (ArrayList<T>) list(ArrayList::new, source);
-    }
-
-    public static <T> LinkedList<T> linkedList(Iterable<T> source) {
-        return (LinkedList<T>) list(LinkedList::new, source);
-    }
-
     public static <T, U> Iterable<U> map(Function<T, U> mapper, Iterable<T> source) {
         return () -> new Iterator<>() {
             Iterator<T> iterator = source.iterator();
@@ -99,7 +75,7 @@ public class Iterables {
         };
     }
 
-    public static <T, U, V> Iterable<V> map(BiFunction<T, U, V> zipper, Iterable<T> left, Iterable<U> right) {
+    public static <T, U, V> Iterable<V> zip(BiFunction<T, U, V> zipper, Iterable<T> left, Iterable<U> right) {
         return () -> new Iterator<>() {
             Iterator<T> l = left.iterator();
             Iterator<U> r = right.iterator();
@@ -165,5 +141,68 @@ public class Iterables {
 
     public static <T> Stream<T> stream(Iterable<T> iterable) {
         return StreamSupport.stream(iterable.spliterator(), false);
+    }
+    
+    /*
+     * Terminator
+     */
+    public static <T> T[] array(IntFunction<T[]> constructor, Iterable<T> source) {
+        return stream(source).toArray(constructor);
+    }
+
+    public static int[][] array(Iterable<int[]> source) {
+        return stream(source).toArray(int[][]::new);
+    }
+
+    public static <T> List<T> list(Supplier<List<T>> constructor, Iterable<T> source) {
+        List<T> result = constructor.get();
+        for (T e : source)
+            result.add(e);
+        return result;
+    }
+
+    public static <T> List<T> list(Iterable<T> source) {
+        return arrayList(source);
+    }
+
+    public static <T> ArrayList<T> arrayList(Iterable<T> source) {
+    return (ArrayList<T>) list(ArrayList::new, source);
+    }
+
+    public static <T> LinkedList<T> linkedList(Iterable<T> source) {
+        return (LinkedList<T>) list(LinkedList::new, source);
+    }
+
+    public static <T, U, V> Map<U, V> map(Supplier<Map<U, V>> constructor,
+            Function<T, U> keyExtructor, Function<T, V> valueExtractor, Iterable<T> source) {
+        Map<U, V> result = constructor.get();
+        for (T e : source)
+            result.put(keyExtructor.apply(e), valueExtractor.apply(e));
+        return result;
+    }
+
+    public static <T, U, V> HashMap<U, V> hashMap(
+            Function<T, U> keyExtructor, Function<T, V> valueExtractor, Iterable<T> source) {
+        return (HashMap<U, V>) map(HashMap::new, keyExtructor, valueExtractor, source);
+    }
+
+    public static <T, U, V> TreeMap<U, V> treeMap(
+            Function<T, U> keyExtructor, Function<T, V> valueExtractor, Iterable<T> source) {
+        return (TreeMap<U, V>) map(TreeMap::new, keyExtructor, valueExtractor, source);
+    }
+
+    public static <U, V> Map<U, V> map(Supplier<Map<U, V>> constructor,
+            Iterable<U> keySource, Iterable<V> valueSource) {
+        Map<U, V> result = constructor.get();
+        Iterator<U> key = keySource.iterator();
+        Iterator<V> value = valueSource.iterator();
+        while (key.hasNext() && value.hasNext())
+            result.put(key.next(), value.next());
+        return result;
+    }
+
+    public static <U, V> Map<U, V> hashMap(
+            Iterable<U> keySource, Iterable<V> valueSource) {
+        return (HashMap<U, V>) map((Supplier<Map<U, V>>)HashMap::new, keySource, valueSource);
     }
 }

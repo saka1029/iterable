@@ -4,9 +4,11 @@ import static saka1029.iterable.Iterables.*;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-
+import java.util.Map;
+import java.util.TreeMap;
 import org.junit.Test;
 
 public class TestIterables {
@@ -50,17 +52,17 @@ public class TestIterables {
                     listOf(1, 2, 3))));
         assertEquals(listOf(11, 22, 33),
             list(
-                map((a, b) -> a + b,
+                zip((a, b) -> a + b,
                     listOf(1, 2, 3),
                     listOf(10, 20, 30))));
         assertEquals(listOf(11, 22, 33),
             list(
-                map((a, b) -> a + b,
+                zip((a, b) -> a + b,
                     listOf(1, 2, 3),
                     listOf(10, 20, 30, 40))));
         assertEquals(listOf(11, 22, 33),
             list(
-                map((a, b) -> a + b,
+                zip((a, b) -> a + b,
                     listOf(1, 2, 3, 4),
                     listOf(10, 20, 30))));
     }
@@ -78,4 +80,25 @@ public class TestIterables {
         assertEquals(listOf(1, 2, 3), stream(listOf(1, 2, 3)).toList());
     }
 
+    @Test
+    public void testHashMap() {
+        HashMap<String, Integer> map = hashMap(s -> s, s -> s.length(), listOf("one", "two", "three"));
+        assertEquals(Map.of("one", 3, "two", 3, "three", 5), map);
+    }
+
+    @Test
+    public void testTreeMap() {
+        TreeMap<String, Integer> map = treeMap(s -> s, s -> s.length(), listOf("one", "two", "three"));
+        assertEquals(Map.of("one", 3, "two", 3, "three", 5), map);
+    }
+
+    @Test
+    public void testMakeMap() {
+        assertEquals(Map.of(0, "zero", 1, "one"),
+            hashMap(listOf(0, 1), List.of("zero", "one")));
+        assertEquals(Map.of(0, "zero", 1, "one"),
+            hashMap(listOf(0, 1, 2), List.of("zero", "one")));
+        assertEquals(Map.of(0, "zero", 1, "one"),
+            hashMap(listOf(0, 1), List.of("zero", "one", "two")));
+    }
 }
