@@ -9,9 +9,22 @@ public class Combination {
     private Combination() {
     }
 
+    /**
+     * 【k > n のとき 0 とする理由】
+     * 二項展開の係数として数 nCk を定義するものと考えれば
+     * k = n または k = 0 のとき nCk = 1 ,
+     * k &gt; n のとき nCk = 0
+     * と考えるのは自然である。
+     * (https://ja.wikipedia.org/wiki/%E7%B5%84%E5%90%88%E3%81%9B_(%E6%95%B0%E5%AD%A6)#%E5%AE%9A%E7%BE%A9)
+     * @param n
+     * @param k
+     * @return
+     */
     public static int count(int n, int k) {
         if (n < 0) throw new IllegalArgumentException("n must be >= 0");
         if (k < 0) throw new IllegalArgumentException("r must be >= 0");
+        if (k > n)
+            return 0;
         k = Math.min(k, n - k);
         int count = 1;
         for(int i = 1, j = n - i + 1; i <= k; ++i, --j)
