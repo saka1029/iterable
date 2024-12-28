@@ -43,6 +43,29 @@ public class TestIterables {
     }
 
     @Test
+    public void testMap() {
+        assertEquals(listOf(10, 20, 30),
+            list(
+                map(i -> i * 10,
+                    listOf(1, 2, 3))));
+        assertEquals(listOf(11, 22, 33),
+            list(
+                map((a, b) -> a + b,
+                    listOf(1, 2, 3),
+                    listOf(10, 20, 30))));
+        assertEquals(listOf(11, 22, 33),
+            list(
+                map((a, b) -> a + b,
+                    listOf(1, 2, 3),
+                    listOf(10, 20, 30, 40))));
+        assertEquals(listOf(11, 22, 33),
+            list(
+                map((a, b) -> a + b,
+                    listOf(1, 2, 3, 4),
+                    listOf(10, 20, 30))));
+    }
+
+    @Test
     public void testFilter() {
         assertEquals(listOf(1, 3),
             list(

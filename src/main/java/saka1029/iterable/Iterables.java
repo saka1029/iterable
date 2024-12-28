@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -16,21 +18,54 @@ public class Iterables {
     private Iterables() {
     }
 
+    /*
+     * Constructors
+     */
+
     @SafeVarargs
     public static <T> List<T> listOf(T... elements) {
         return List.of(elements);
     }
 
     @SafeVarargs
-    public static <T> List<T> listOf(Supplier<List<T>> creator, T... elements) {
-        List<T> result = creator.get();
+    public static <T> List<T> listOf(Supplier<List<T>> constructor, T... elements) {
+        List<T> result = constructor.get();
         for (T e : elements)
             result.add(e);
         return result;
     }
 
-    public static <T> List<T> list(Supplier<List<T>> creator, Iterable<T> source) {
-        List<T> result = creator.get();
+    public static List<Integer> intListOf(int... elements) {
+        return IntStream.of(elements).boxed().toList();
+    }
+
+    @SafeVarargs
+    public static <T> ArrayList<T> arrayListOf(T... elements) {
+        return (ArrayList<T>) listOf(ArrayList::new, elements);
+    }
+
+    @SafeVarargs
+    public static <T> LinkedList<T> linkedListOf(T... elements) {
+        return (LinkedList<T>) listOf(LinkedList::new, elements);
+    }
+
+    public static int[] arrayOf(int... elements) {
+        return elements.clone();
+    }
+
+    /*
+     * Converters
+     */
+    public static <T> T[] array(IntFunction<T[]> constructor, Iterable<T> source) {
+        return stream(source).toArray(constructor);
+    }
+
+    public static int[][] array(Iterable<int[]> source) {
+        return stream(source).toArray(int[][]::new);
+    }
+
+    public static <T> List<T> list(Supplier<List<T>> constructor, Iterable<T> source) {
+        List<T> result = constructor.get();
         for (T e : source)
             result.add(e);
         return result;
@@ -40,41 +75,12 @@ public class Iterables {
         return arrayList(source);
     }
 
-    public static List<Integer> intListOf(int... elements) {
-        List<Integer> result = new ArrayList<>();
-        for (int i : elements)
-            result.add(i);
-        return result;
-    }
-
-    @SafeVarargs
-    public static <T> ArrayList<T> arrayListOf(T... elements) {
-        return (ArrayList<T>) listOf(ArrayList::new, elements);
-    }
-
     public static <T> ArrayList<T> arrayList(Iterable<T> source) {
     return (ArrayList<T>) list(ArrayList::new, source);
     }
 
-    @SafeVarargs
-    public static <T> LinkedList<T> linkedListOf(T... elements) {
-        return (LinkedList<T>) listOf(LinkedList::new, elements);
-    }
-
     public static <T> LinkedList<T> linkedList(Iterable<T> source) {
         return (LinkedList<T>) list(LinkedList::new, source);
-    }
-
-    public static int[] arrayOf(int... elements) {
-        return elements.clone();
-    }
-
-    public static <T> T[] array(IntFunction<T[]> creator, Iterable<T> source) {
-        return stream(source).toArray(creator);
-    }
-
-    public static int[][] array(Iterable<int[]> source) {
-        return stream(source).toArray(int[][]::new);
     }
 
     public static <T, U> Iterable<U> map(Function<T, U> mapper, Iterable<T> source) {
@@ -89,6 +95,23 @@ public class Iterables {
             @Override
             public U next() {
                 return mapper.apply(iterator.next());
+            }
+        };
+    }
+
+    public static <T, U, V> Iterable<V> map(BiFunction<T, U, V> zipper, Iterable<T> left, Iterable<U> right) {
+        return () -> new Iterator<>() {
+            Iterator<T> l = left.iterator();
+            Iterator<U> r = right.iterator();
+
+            @Override
+            public boolean hasNext() {
+                return l.hasNext() && r.hasNext();
+            }
+
+            @Override
+            public V next() {
+                return zipper.apply(l.next(), r.next());
             }
         };
     }
