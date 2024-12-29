@@ -91,6 +91,12 @@ public class TestIterables {
     }
 
     @Test
+    public void testLimit() {
+        assertEquals(listOf(0, 1, 2, 3), list(limit(4, range(0, 10, 1))));
+        assertEquals(listOf(0, 1, 2), list(limit(4, range(0, 3, 1))));
+    }
+
+    @Test
     public void testStream() {
         assertEquals(listOf(1, 2, 3), stream(listOf(1, 2, 3)).toList());
     }

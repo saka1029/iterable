@@ -159,6 +159,24 @@ public class Iterables {
         };
     }
 
+    public static <T> Iterable<T> limit(int max, Iterable<T> source) {
+        return () -> new Iterator<>() {
+
+            Iterator<T> iterator = source.iterator();
+            int i = 0;
+
+            @Override
+            public boolean hasNext() {
+                return i < max && iterator.hasNext();
+            }
+            @Override
+            public T next() {
+                ++i;
+                return iterator.next();
+            }
+        };
+    }
+
     public static <T> Stream<T> stream(Iterable<T> iterable) {
         return StreamSupport.stream(iterable.spliterator(), false);
     }
