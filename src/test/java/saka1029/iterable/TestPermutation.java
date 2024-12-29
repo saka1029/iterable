@@ -101,12 +101,6 @@ public class TestPermutation {
         return reduce(0, (a, b) -> 10 * a + b, intListOf(digits));
     }
 
-    /**
-     * <pre>
-     * 0 1 2 3 4 5 6 7
-     * S E N D M O R Y
-     * </pre>
-     */
     static boolean isSendMoreMoney(int s, int e, int n, int d, int m, int o, int r, int y) {
         return s != 0 && m != 0
             && number(s, e, n, d) + number(m, o, r, e) == number(m, o, n, e, y);
