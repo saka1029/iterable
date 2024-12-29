@@ -98,7 +98,7 @@ public class TestPermutation {
     }
 
     static int number(int... digits) {
-        return IntStream.of(digits).reduce(0, (a, b) -> 10 * a + b);
+        return reduce(0, (a, b) -> 10 * a + b, intListOf(digits));
     }
 
     /**

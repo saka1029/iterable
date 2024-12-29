@@ -225,4 +225,11 @@ public class Iterables {
             Iterable<U> keySource, Iterable<V> valueSource) {
         return (HashMap<U, V>) map((Supplier<Map<U, V>>)HashMap::new, keySource, valueSource);
     }
+
+    public static <T, U> U reduce(U unit, BiFunction<U, T, U> reducer, Iterable<T> source) {
+        U result = unit;
+        for (T e : source)
+            result = reducer.apply(result, e);
+        return result;
+    }
 }

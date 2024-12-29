@@ -122,6 +122,12 @@ public class TestIterables {
             hashMap(listOf(0, 1), List.of("zero", "one", "two")));
     }
 
+    @Test
+    public void testReduce() {
+        assertEquals(10, (int) reduce(0, (a, b) -> a + b, listOf(1, 2, 3, 4)));
+        assertEquals(1234, (int) reduce(0, (a, b) -> 10 * a + b, listOf(1, 2, 3, 4)));
+    }
+
     static Iterable<Integer> primes(int max) {
         Iterable<Integer> primes = range(2, max, 1);
         Function<Integer, Predicate<Integer>> sieve = n -> i -> i == n || i % n != 0;
