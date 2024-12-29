@@ -9,6 +9,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import org.junit.Test;
 
 public class TestIterables {
@@ -30,6 +32,24 @@ public class TestIterables {
     public void testLinkedList() {
         LinkedList<Integer> list = linkedListOf(0, 1, 2);
         assertEquals(List.of(0, 1, 2), list);
+    }
+
+    @Test
+    public void testRange() {
+        assertEquals(listOf(0, 1, 2), list(range(0, 3, 1)));
+        assertEquals(listOf(3, 2, 1), list(range(3, 0, -1)));
+        assertEquals(listOf(0, 2), list(range(0, 4, 2)));
+        assertEquals(listOf(4, 2), list(range(4, 0, -2)));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testRangeIllegalStep() {
+        list(range(0, 3, 0));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testRangeIllegalEnd() {
+        list(range(0, 3, -1));
     }
 
     @Test
@@ -100,5 +120,22 @@ public class TestIterables {
             hashMap(listOf(0, 1, 2), List.of("zero", "one")));
         assertEquals(Map.of(0, "zero", 1, "one"),
             hashMap(listOf(0, 1), List.of("zero", "one", "two")));
+    }
+
+    static Iterable<Integer> primes(int max) {
+        Iterable<Integer> primes = range(2, max, 1);
+        Function<Integer, Predicate<Integer>> sieve = n -> i -> i == n || i % n != 0;
+        primes = filter(sieve.apply(2), primes);
+        for (int i = 3, n = (int) Math.sqrt(max); i <= n; i += 2)
+            primes = filter(sieve.apply(i), primes);
+        return primes;
+    }
+
+    @Test
+    public void testPrime() {
+        assertEquals(listOf(
+            2, 3, 5, 7, 11, 13, 17, 19, 23,
+            29, 31, 37, 41, 43, 47, 53, 59,
+            61, 67, 71, 73, 79, 83, 89, 97), list(primes(100)));
     }
 }

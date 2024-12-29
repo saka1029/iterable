@@ -56,6 +56,26 @@ public class Iterables {
         return elements.clone();
     }
 
+    public static Iterable<Integer> range(int start, int end, int step) {
+        if (step == 0 || Integer.signum(end - start) != Integer.signum(step))
+            throw new IllegalArgumentException("Invalid start, end, step");
+        return () -> new Iterator<>() {
+            int i = start;
+
+            @Override
+            public boolean hasNext() {
+                return step > 0 ? i < end : i > end;
+            }
+
+            @Override
+            public Integer next() {
+                int result = i;
+                i += step;
+                return result;
+            }
+        };
+    }
+
     /*
      * Converters
      */
