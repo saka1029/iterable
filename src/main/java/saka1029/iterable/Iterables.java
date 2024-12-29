@@ -57,7 +57,7 @@ public class Iterables {
     }
 
     public static Iterable<Integer> range(int start, int end, int step) {
-        if (step == 0 || Integer.signum(end - start) != Integer.signum(step))
+        if (step == 0)
             throw new IllegalArgumentException("Invalid start, end, step");
         return () -> new Iterator<>() {
             int i = start;

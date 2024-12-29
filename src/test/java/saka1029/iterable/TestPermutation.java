@@ -114,4 +114,19 @@ public class TestPermutation {
                     filter(d -> isSendMoreMoney(d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7]),
                         Permutation.iterable(10, 8)))));
     }
+
+    static int factorial(int n) {
+        return reduce(1, (a, b) -> a * b, range(1, n + 1, 1));
+    }
+
+    @Test
+    public void testFactorial() {
+        assertEquals(1, factorial(0));
+        assertEquals(1, factorial(1));
+        assertEquals(2, factorial(2));
+        assertEquals(6, factorial(3));
+        assertEquals(24, factorial(4));
+        assertEquals(120, factorial(5));
+        assertEquals(720, factorial(6));
+    }
 }

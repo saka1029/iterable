@@ -47,11 +47,6 @@ public class TestIterables {
         list(range(0, 3, 0));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testRangeIllegalEnd() {
-        list(range(0, 3, -1));
-    }
-
     @Test
     public void testLinkedListFromIterable() {
         LinkedList<Integer> list = linkedList(listOf(0, 1, 2));
