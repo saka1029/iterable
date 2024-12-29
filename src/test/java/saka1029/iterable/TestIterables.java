@@ -48,6 +48,14 @@ public class TestIterables {
     }
 
     @Test
+    public void testGenerate() {
+        assertEquals(listOf(0, 1, 2),
+            list(generate(new Object() { int i = 0; }, t -> t.i < 3, t -> t.i++)));
+        assertEquals(listOf(0, 1, 2),
+            list(limit(3, generate(new Object() { int i = 0; }, t -> true, t -> t.i++))));
+    }
+
+    @Test
     public void testLinkedListFromIterable() {
         LinkedList<Integer> list = linkedList(listOf(0, 1, 2));
         assertEquals(List.of(0, 1, 2), list);
