@@ -139,4 +139,19 @@ public class TestIterables {
             29, 31, 37, 41, 43, 47, 53, 59,
             61, 67, 71, 73, 79, 83, 89, 97), list(primes(100)));
     }
+
+    static int factorial(int n) {
+        return reduce(1, (a, b) -> a * b, range(1, n + 1, 1));
+    }
+
+    @Test
+    public void testFactorial() {
+        assertEquals(1, factorial(0));
+        assertEquals(1, factorial(1));
+        assertEquals(2, factorial(2));
+        assertEquals(6, factorial(3));
+        assertEquals(24, factorial(4));
+        assertEquals(120, factorial(5));
+        assertEquals(720, factorial(6));
+    }
 }
