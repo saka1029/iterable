@@ -49,11 +49,17 @@ public class TestIterables {
 
     @Test
     public void testGenerate() {
+        class Seed { int i = 0; }
         assertEquals(listOf(0, 1, 2),
-            list(generate(() -> new Object() { int i = 0; }, t -> t.i < 3, t -> t.i++)));
+            list(generate(Seed::new, seed -> seed.i < 3, seed -> seed.i++)));
         assertEquals(listOf(0, 1, 2),
-            list(limit(3, generate(() -> new Object() { int i = 0; }, t -> true, t -> t.i++))));
-        Iterable<Integer> gen = generate(() -> new Object() { int i = 0; }, t -> t.i < 3, t ->t.i++);
+            list(generate(() -> new Object() { int i = 0; },
+                seed -> seed.i < 3, seed -> seed.i++)));
+        assertEquals(listOf(0, 1, 2),
+            list(limit(3, generate(() -> new Object() { int i = 0; },
+                seed -> true, seed -> seed.i++))));
+        Iterable<Integer> gen = generate(() -> new Object() { int i = 0; },
+            seed -> seed.i < 3, seed ->seed.i++);
         assertEquals(listOf(0, 1, 2), list(gen));
         assertEquals(listOf(0, 1, 2), list(gen));
     }
