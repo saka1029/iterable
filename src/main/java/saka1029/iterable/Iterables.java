@@ -76,17 +76,18 @@ public class Iterables {
         };
     }
 
-    public static <T, U> Iterable<U> generate(T seed, Predicate<T> hasNext, Function<T, U> next) {
+    public static <T, U> Iterable<U> generate(Supplier<T> seed, Predicate<T> hasNext, Function<T, U> next) {
         return () -> new Iterator<>() {
+            T t = seed.get();
 
             @Override
             public boolean hasNext() {
-                return hasNext.test(seed);
+                return hasNext.test(t);
             }
 
             @Override
             public U next() {
-                return next.apply(seed);
+                return next.apply(t);
             }
         };
     }
