@@ -92,7 +92,21 @@ public class Iterables {
         };
     }
 
+    public static <T> Iterable<T> iterable(Supplier<Stream<T>> source) {
+        return () -> source.get().iterator();
+    }
 
+    /**
+     * StreamをIterableに変換します。
+     * ただし変換後のIterableに対して、
+     * iterator()は一度しか呼び出せない点に注意する必要があります。
+     * @param <T>
+     * @param source
+     * @return
+     */
+    public static <T> Iterable<T> iterable(Stream<T> source) {
+        return source::iterator;
+    }
 
     /*
      * Converters

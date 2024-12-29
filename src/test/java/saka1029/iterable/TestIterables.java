@@ -3,6 +3,7 @@ package saka1029.iterable;
 import static saka1029.iterable.Iterables.*;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -11,6 +12,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 import org.junit.Test;
 
 public class TestIterables {
@@ -62,6 +64,28 @@ public class TestIterables {
             seed -> seed.i < 3, seed ->seed.i++);
         assertEquals(listOf(0, 1, 2), list(gen));
         assertEquals(listOf(0, 1, 2), list(gen));
+    }
+
+    @Test
+    public void testStreamSupplierToIterable() {
+        assertEquals(listOf(1, 2, 3), list(() -> Stream.of(1, 2, 3).iterator()));
+        Iterable<Integer> s = () -> Stream.of(1, 2, 3).iterator();
+        assertEquals(listOf(1, 2, 3), list(s));
+        // ２回目以降も呼び出せる。
+        assertEquals(listOf(1, 2, 3), list(s));
+    }
+
+    @Test
+    public void testStreamToIterable() {
+        assertEquals(listOf(1, 2, 3), list(iterable(Stream.of(1, 2, 3))));
+        Iterable<Integer> stream = iterable(Stream.of(1, 2, 3));
+        assertEquals(listOf(1, 2, 3), list(stream));
+        try {
+            // ２回めの呼び出しは例外を投げる。
+            assertEquals(listOf(1, 2, 3), list(stream));
+            fail();
+        } catch (IllegalStateException e) {
+        }
     }
 
     @Test

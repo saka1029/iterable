@@ -1,7 +1,6 @@
 package saka1029.iterable;
 
 import static saka1029.iterable.Iterables.*;
-import java.util.stream.IntStream;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
