@@ -16,23 +16,23 @@ public class TestCombinationRecursive {
                                                                     next = SOLVE
                                                                     callcount = 0
             int[] selected = new int[k];                            int[] selected = new int[k];
-            void solve(int i, int j) {                   
-                if (i >= k)                                 SOLVE:  ++callcount
+            void solve(int i, int j) {                      SOLVE:
+                                                                    if callcount > 0 goto CALLED
+                if (i >= k)                                         ++callcount
                                                                     if not i >= k goto ELSE
                     callback.accept(selected.clone());              callback.accept(selected.clone())
-                                                                    next = ENDIF
-                                                                    return
+                                                                    return true;
                 else                                        ELSE:
                     for (; j < n; ++j) {                    FOR:    if not j < n goto ENDIF
                         selected[i] = j;                            selected[i] = j
+                                                                    push(i), push(j)
                         solve(i + 1, j + 1);                        ++i, ++j
                                                                     goto SOLVE
-                                                            CALLED: --i, --j
+                                                            CALLED: j = pop(), i = pop()
                     }                                       FOREND: ++j
                                                                     goto FOR
-            }                                               ENDIF:
-                                                                    if --callcount > 0 goto CALLED
-                                                            END:
+            }                                               ENDIF:  if --callcount > 0 goto CALLED
+                                                            END:    return false
 
         }.solve(0, 0);
 
