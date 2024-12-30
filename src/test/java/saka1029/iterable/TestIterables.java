@@ -5,11 +5,9 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -25,14 +23,21 @@ public class TestIterables {
     }
 
     @Test
+    public void testArrayOf() {
+        int[][] expected = {{0, 1}, {2}, {}};
+        assertArrayEquals(expected, arrayOf(intArrayOf(0, 1), intArrayOf(2), intArrayOf()));
+
+    }
+
+    @Test
     public void testArrayList() {
-        ArrayList<Integer> list = arrayListOf(0, 1, 2);
+        List<Integer> list = listOf(ArrayList::new, 0, 1, 2);
         assertEquals(List.of(0, 1, 2), list);
     }
 
     @Test
     public void testLinkedList() {
-        LinkedList<Integer> list = linkedListOf(0, 1, 2);
+        List<Integer> list = listOf(LinkedList::new, 0, 1, 2);
         assertEquals(List.of(0, 1, 2), list);
     }
 
@@ -69,6 +74,7 @@ public class TestIterables {
     @Test
     public void testStreamSupplierToIterable() {
         assertEquals(listOf(1, 2, 3), list(() -> Stream.of(1, 2, 3).iterator()));
+        assertEquals(listOf(1, 2, 3), list(iterable(() -> Stream.of(1, 2, 3))));
         Iterable<Integer> s = () -> Stream.of(1, 2, 3).iterator();
         assertEquals(listOf(1, 2, 3), list(s));
         // ２回目以降も呼び出せる。
@@ -90,7 +96,7 @@ public class TestIterables {
 
     @Test
     public void testLinkedListFromIterable() {
-        LinkedList<Integer> list = linkedList(listOf(0, 1, 2));
+        List<Integer> list = list(LinkedList::new, listOf(0, 1, 2));
         assertEquals(List.of(0, 1, 2), list);
     }
 
@@ -144,24 +150,24 @@ public class TestIterables {
 
     @Test
     public void testHashMap() {
-        HashMap<String, Integer> map = hashMap(s -> s, s -> s.length(), listOf("one", "two", "three"));
+        Map<String, Integer> map = map(s -> s, s -> s.length(), listOf("one", "two", "three"));
         assertEquals(Map.of("one", 3, "two", 3, "three", 5), map);
     }
 
     @Test
     public void testTreeMap() {
-        TreeMap<String, Integer> map = treeMap(s -> s, s -> s.length(), listOf("one", "two", "three"));
+        Map<String, Integer> map = map(s -> s, s -> s.length(), listOf("one", "two", "three"));
         assertEquals(Map.of("one", 3, "two", 3, "three", 5), map);
     }
 
     @Test
     public void testMakeMap() {
         assertEquals(Map.of(0, "zero", 1, "one"),
-            hashMap(listOf(0, 1), List.of("zero", "one")));
+            map(listOf(0, 1), List.of("zero", "one")));
         assertEquals(Map.of(0, "zero", 1, "one"),
-            hashMap(listOf(0, 1, 2), List.of("zero", "one")));
+            map(listOf(0, 1, 2), List.of("zero", "one")));
         assertEquals(Map.of(0, "zero", 1, "one"),
-            hashMap(listOf(0, 1), List.of("zero", "one", "two")));
+            map(listOf(0, 1), List.of("zero", "one", "two")));
     }
 
     @Test

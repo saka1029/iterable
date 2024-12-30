@@ -3,10 +3,8 @@ package saka1029.iterable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.IntFunction;
@@ -40,16 +38,6 @@ public class Iterables {
 
     public static List<Integer> intListOf(int... elements) {
         return IntStream.of(elements).boxed().toList();
-    }
-
-    @SafeVarargs
-    public static <T> ArrayList<T> arrayListOf(T... elements) {
-        return (ArrayList<T>) listOf(ArrayList::new, elements);
-    }
-
-    @SafeVarargs
-    public static <T> LinkedList<T> linkedListOf(T... elements) {
-        return (LinkedList<T>) listOf(LinkedList::new, elements);
     }
 
     public static int[] intArrayOf(int... elements) {
@@ -237,15 +225,7 @@ public class Iterables {
     }
 
     public static <T> List<T> list(Iterable<T> source) {
-        return arrayList(source);
-    }
-
-    public static <T> ArrayList<T> arrayList(Iterable<T> source) {
-    return (ArrayList<T>) list(ArrayList::new, source);
-    }
-
-    public static <T> LinkedList<T> linkedList(Iterable<T> source) {
-        return (LinkedList<T>) list(LinkedList::new, source);
+        return list(ArrayList::new, source);
     }
 
     public static <T, U, V> Map<U, V> map(Supplier<Map<U, V>> constructor,
@@ -255,15 +235,9 @@ public class Iterables {
             result.put(keyExtructor.apply(e), valueExtractor.apply(e));
         return result;
     }
-
-    public static <T, U, V> HashMap<U, V> hashMap(
-            Function<T, U> keyExtructor, Function<T, V> valueExtractor, Iterable<T> source) {
-        return (HashMap<U, V>) map(HashMap::new, keyExtructor, valueExtractor, source);
-    }
-
-    public static <T, U, V> TreeMap<U, V> treeMap(
-            Function<T, U> keyExtructor, Function<T, V> valueExtractor, Iterable<T> source) {
-        return (TreeMap<U, V>) map(TreeMap::new, keyExtructor, valueExtractor, source);
+    public static <T, U, V> Map<U, V> map(Function<T, U> keyExtructor,
+            Function<T, V> valueExtractor, Iterable<T> source) {
+        return map(HashMap::new, keyExtructor, valueExtractor, source);
     }
 
     public static <U, V> Map<U, V> map(Supplier<Map<U, V>> constructor,
@@ -276,9 +250,9 @@ public class Iterables {
         return result;
     }
 
-    public static <U, V> Map<U, V> hashMap(
+    public static <U, V> Map<U, V> map(
             Iterable<U> keySource, Iterable<V> valueSource) {
-        return (HashMap<U, V>) map((Supplier<Map<U, V>>)HashMap::new, keySource, valueSource);
+        return map(HashMap::new, keySource, valueSource);
     }
 
     public static <T, U> U reduce(U unit, BiFunction<U, T, U> reducer, Iterable<T> source) {
