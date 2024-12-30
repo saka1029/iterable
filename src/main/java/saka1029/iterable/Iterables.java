@@ -81,22 +81,37 @@ public class Iterables {
         };
     }
 
-    public static <T, U> Iterable<U> generate(T seed, Predicate<T> hasNext, Function<T, U> next) {
+    public static <T, U> Iterable<U> generate(Supplier<T> seed, Predicate<T> hasNext, Function<T, U> next) {
         return () -> new Iterator<>() {
+            T t = seed.get();
 
             @Override
             public boolean hasNext() {
-                return hasNext.test(seed);
+                return hasNext.test(t);
             }
 
             @Override
             public U next() {
-                return next.apply(seed);
+                return next.apply(t);
             }
         };
     }
 
+    public static <T> Iterable<T> iterable(Supplier<Stream<T>> source) {
+        return () -> source.get().iterator();
+    }
 
+    /**
+     * StreamをIterableに変換します。
+     * ただし変換後のIterableに対して、
+     * iterator()は一度しか呼び出せない点に注意する必要があります。
+     * @param <T>
+     * @param source
+     * @return
+     */
+    public static <T> Iterable<T> iterable(Stream<T> source) {
+        return source::iterator;
+    }
 
     /*
      * Converters
