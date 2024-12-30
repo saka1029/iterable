@@ -8,6 +8,35 @@ import org.junit.Test;
 
 public class TestCombinationRecursive {
 
+    /*
+                                                                    int n, k
+        new Object() {
+                                                                    int i = 0
+                                                                    int j = 0
+                                                                    next = SOLVE
+                                                                    callcount = 0
+            int[] selected = new int[k];                            int[] selected = new int[k];
+            void solve(int i, int j) {                   
+                if (i >= k)                                 SOLVE:  ++callcount
+                                                                    if not i >= k goto ELSE
+                    callback.accept(selected.clone());              callback.accept(selected.clone())
+                                                                    next = ENDIF
+                                                                    return
+                else                                        ELSE:
+                    for (; j < n; ++j) {                    FOR:    if j < n goto LOOP
+                                                                    goto LOOPEND
+                        selected[i] = j;                    LOOP:   selected[i] = j
+                        solve(i + 1, j + 1);                        ++i, ++j
+                                                                    goto SOLVE
+                    }                                       LOOPEND:goto FOR
+            }                                               ENDIF:
+                                                                    if --callcount > 0 goto END
+                                                            END:
+
+        }.solve(0, 0);
+
+
+     */
     public static void combination(int n, int k, Consumer<int[]> callback) {
         new Object() {
             int[] selected = new int[k];
