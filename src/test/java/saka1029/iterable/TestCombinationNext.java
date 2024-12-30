@@ -4,6 +4,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static saka1029.iterable.Iterables.*;
 import static saka1029.iterable.TestCombination.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import org.junit.Test;
 
@@ -51,6 +52,58 @@ public class TestCombinationNext {
         assertArrayEquals(COMB_3_1, combinations(3, 1));
         assertArrayEquals(COMB_3_2, combinations(3, 2));
         assertArrayEquals(COMB_3_3, combinations(3, 3));
+    }
+
+    public static Iterable<int[]> iterable(int n, int k) {
+        return () -> new Iterator<>() {
+            int nmk = n - k;
+            int[] selected = intArray(range(0, k, 1));
+            boolean hasNext = nmk >= 0;
+
+            private boolean advance() {
+                int i;
+                for (i = k - 1; i >= 0 && selected[i] >= nmk + i; --i)
+                    /* do nothing */;
+                if (i < 0)
+                    return false;
+                int a = ++selected[i];
+                for (int j = i + 1; j < k; ++j)
+                    selected[j] = ++a;
+                return true;
+            }
+
+            @Override
+            public boolean hasNext() {
+                return hasNext;
+            }
+
+            @Override
+            public int[] next() {
+                int[] result = selected.clone();
+                hasNext = advance();
+                return result;
+            }
+        };
+    }
+
+    @Test
+    public void testIterable() {
+        assertArrayEquals(COMB_0_0, array(iterable(0, 0)));
+        assertArrayEquals(COMB_0_1, array(iterable(0, 1)));
+        assertArrayEquals(COMB_0_2, array(iterable(0, 2)));
+        assertArrayEquals(COMB_0_3, array(iterable(0, 3)));
+        assertArrayEquals(COMB_1_0, array(iterable(1, 0)));
+        assertArrayEquals(COMB_1_1, array(iterable(1, 1)));
+        assertArrayEquals(COMB_1_2, array(iterable(1, 2)));
+        assertArrayEquals(COMB_1_3, array(iterable(1, 3)));
+        assertArrayEquals(COMB_2_0, array(iterable(2, 0)));
+        assertArrayEquals(COMB_2_1, array(iterable(2, 1)));
+        assertArrayEquals(COMB_2_2, array(iterable(2, 2)));
+        assertArrayEquals(COMB_2_3, array(iterable(2, 3)));
+        assertArrayEquals(COMB_3_0, array(iterable(3, 0)));
+        assertArrayEquals(COMB_3_1, array(iterable(3, 1)));
+        assertArrayEquals(COMB_3_2, array(iterable(3, 2)));
+        assertArrayEquals(COMB_3_3, array(iterable(3, 3)));
     }
 
 }
