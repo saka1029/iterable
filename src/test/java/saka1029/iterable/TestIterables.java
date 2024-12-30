@@ -25,7 +25,7 @@ public class TestIterables {
     @Test
     public void testArrayOf() {
         int[][] expected = {{0, 1}, {2}, {}};
-        assertArrayEquals(expected, arrayOf(intArrayOf(0, 1), intArrayOf(2), intArrayOf()));
+        assertArrayEquals(expected, arrayOf(arrayOf(0, 1), arrayOf(2), arrayOf()));
 
     }
 

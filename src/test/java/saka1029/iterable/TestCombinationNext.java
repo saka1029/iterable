@@ -5,7 +5,6 @@ import static saka1029.iterable.Iterables.*;
 import static saka1029.iterable.TestCombination.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.IntStream;
 import org.junit.Test;
 
 public class TestCombinationNext {
@@ -24,7 +23,8 @@ public class TestCombinationNext {
     }
 
     static int[][] combinations(int n, int r) {
-        int[] s = IntStream.range(0, r).toArray();
+        int[] s = intArray(range(0, r, 1));
+        // int[] s = IntStream.range(0, r).toArray();
         List<int[]> result = new ArrayList<>();
         if (n >= r)
             do {

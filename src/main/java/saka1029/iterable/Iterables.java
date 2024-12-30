@@ -10,7 +10,6 @@ import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -37,7 +36,10 @@ public class Iterables {
     }
 
     public static List<Integer> intListOf(int... elements) {
-        return IntStream.of(elements).boxed().toList();
+        ArrayList<Integer> result = new ArrayList<>();
+        for (int i : elements)
+            result.add(i);
+        return result;
     }
 
     public static int[] intArrayOf(int... elements) {
@@ -215,6 +217,10 @@ public class Iterables {
 
     public static int[][] array(Iterable<int[]> source) {
         return stream(source).toArray(int[][]::new);
+    }
+
+    public static int[] intArray(Iterable<Integer> source) {
+        return stream(source).mapToInt(Integer::valueOf).toArray();
     }
 
     public static <T> List<T> list(Supplier<List<T>> constructor, Iterable<T> source) {
