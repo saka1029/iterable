@@ -23,12 +23,12 @@ public class TestCombinationRecursive {
                                                                     next = ENDIF
                                                                     return
                 else                                        ELSE:
-                    for (; j < n; ++j) {                    FOR:    if j < n goto LOOP
-                                                                    goto LOOPEND
-                        selected[i] = j;                    LOOP:   selected[i] = j
+                    for (; j < n; ++j) {                    FOR:    if not j < n goto ENDIF
+                        selected[i] = j;                            selected[i] = j
                         solve(i + 1, j + 1);                        ++i, ++j
                                                                     goto SOLVE
-                    }                                       LOOPEND:goto FOR
+                                                            FOREND: goto FOR
+                                                            
             }                                               ENDIF:
                                                                     if --callcount > 0 goto END
                                                             END:
