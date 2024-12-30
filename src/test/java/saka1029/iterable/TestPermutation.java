@@ -1,7 +1,6 @@
 package saka1029.iterable;
 
 import static saka1029.iterable.Iterables.*;
-import java.util.stream.IntStream;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
@@ -88,7 +87,7 @@ public class TestPermutation {
     @Test
     public void testIterableIntArray() {
         assertArrayEquals(new int[][] {{10, 20}, {20, 10}},
-            array(Permutation.iterable(arrayOf(10, 20), 2)));
+            array(Permutation.iterable(intArrayOf(10, 20), 2)));
     }
 
     @Test

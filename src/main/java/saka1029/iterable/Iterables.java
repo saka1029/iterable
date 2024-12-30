@@ -52,7 +52,12 @@ public class Iterables {
         return (LinkedList<T>) listOf(LinkedList::new, elements);
     }
 
-    public static int[] arrayOf(int... elements) {
+    public static int[] intArrayOf(int... elements) {
+        return elements.clone();
+    }
+
+    @SafeVarargs
+    public static <T> T[] arrayOf(T... elements) {
         return elements.clone();
     }
 

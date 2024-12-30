@@ -87,7 +87,7 @@ public class TestCombination {
     @Test
     public void testIterableIntArray() {
         assertArrayEquals(new int[][] {{10}, {20}},
-            array(Combination.iterable(arrayOf(10, 20), 1)));
+            array(Combination.iterable(intArrayOf(10, 20), 1)));
     }
 
     @Test
