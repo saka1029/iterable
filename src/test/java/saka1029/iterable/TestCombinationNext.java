@@ -61,9 +61,9 @@ public class TestCombinationNext {
             boolean hasNext = nmk >= 0;
 
             private boolean advance() {
-                int i;
-                for (i = k - 1; i >= 0 && selected[i] >= nmk + i; --i)
-                    /* do nothing */;
+                int i = k - 1;
+                while (i >= 0 && selected[i] >= nmk + i)
+                    --i;
                 if (i < 0)
                     return false;
                 int a = ++selected[i];
