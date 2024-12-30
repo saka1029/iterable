@@ -27,10 +27,11 @@ public class TestCombinationRecursive {
                         selected[i] = j;                            selected[i] = j
                         solve(i + 1, j + 1);                        ++i, ++j
                                                                     goto SOLVE
-                                                            FOREND: goto FOR
-                                                            
+                                                            CALLED: --i, --j
+                    }                                       FOREND: ++j
+                                                                    goto FOR
             }                                               ENDIF:
-                                                                    if --callcount > 0 goto END
+                                                                    if --callcount > 0 goto CALLED
                                                             END:
 
         }.solve(0, 0);
