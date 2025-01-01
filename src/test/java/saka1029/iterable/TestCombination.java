@@ -25,6 +25,12 @@ public class TestCombination {
         assertEquals(3, Combination.count(3, 1));
         assertEquals(3, Combination.count(3, 2));
         assertEquals(1, Combination.count(3, 3));
+        assertEquals(1, Combination.count(4, 0));
+        assertEquals(4, Combination.count(4, 1));
+        assertEquals(6, Combination.count(4, 2));
+        assertEquals(4, Combination.count(4, 3));
+        assertEquals(1, Combination.count(4, 4));
+        assertEquals(0, Combination.count(4, 5));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -53,6 +59,12 @@ public class TestCombination {
     static final int[][] COMB_3_1 = {{0}, {1}, {2}};
     static final int[][] COMB_3_2 = {{0, 1}, {0, 2}, {1, 2}};
     static final int[][] COMB_3_3 = {{0, 1, 2}};
+    static final int[][] COMB_4_0 = {{}};
+    static final int[][] COMB_4_1 = {{0}, {1}, {2}, {3}};
+    static final int[][] COMB_4_2 = {{0, 1}, {0, 2}, {0, 3}, {1, 2}, {1, 3}, {2, 3}};
+    static final int[][] COMB_4_3 = {{0, 1, 2}, {0, 1, 3}, {0, 2, 3}, {1, 2, 3}};
+    static final int[][] COMB_4_4 = {{0, 1, 2, 3}};
+    static final int[][] COMB_4_5 = {};
 
     @Test
     public void testIterable() {
@@ -72,6 +84,12 @@ public class TestCombination {
         assertArrayEquals(COMB_3_1, array(Combination.iterable(3, 1)));
         assertArrayEquals(COMB_3_2, array(Combination.iterable(3, 2)));
         assertArrayEquals(COMB_3_3, array(Combination.iterable(3, 3)));
+        assertArrayEquals(COMB_4_0, array(Combination.iterable(4, 0)));
+        assertArrayEquals(COMB_4_1, array(Combination.iterable(4, 1)));
+        assertArrayEquals(COMB_4_2, array(Combination.iterable(4, 2)));
+        assertArrayEquals(COMB_4_3, array(Combination.iterable(4, 3)));
+        assertArrayEquals(COMB_4_4, array(Combination.iterable(4, 4)));
+        assertArrayEquals(COMB_4_5, array(Combination.iterable(4, 5)));
     }
 
     @Test(expected = IllegalArgumentException.class)

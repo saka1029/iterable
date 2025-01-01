@@ -34,7 +34,7 @@ public class TestPermutationNext {
 
     @Test
     public void testNext() {
-        int[] perm = intArray(range(0, 3, 1));
+        int[] perm = intArray(range(0, 4, 1));
         do {
             System.out.println(Arrays.toString(perm));
         } while (next(perm, 3));

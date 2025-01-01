@@ -52,6 +52,12 @@ public class TestCombinationNext {
         assertArrayEquals(COMB_3_1, combinations(3, 1));
         assertArrayEquals(COMB_3_2, combinations(3, 2));
         assertArrayEquals(COMB_3_3, combinations(3, 3));
+        assertArrayEquals(COMB_4_0, combinations(4, 0));
+        assertArrayEquals(COMB_4_1, combinations(4, 1));
+        assertArrayEquals(COMB_4_2, combinations(4, 2));
+        assertArrayEquals(COMB_4_3, combinations(4, 3));
+        assertArrayEquals(COMB_4_4, combinations(4, 4));
+        assertArrayEquals(COMB_4_5, combinations(4, 5));
     }
 
     public static Iterable<int[]> iterable(int n, int k) {
@@ -104,6 +110,12 @@ public class TestCombinationNext {
         assertArrayEquals(COMB_3_1, array(iterable(3, 1)));
         assertArrayEquals(COMB_3_2, array(iterable(3, 2)));
         assertArrayEquals(COMB_3_3, array(iterable(3, 3)));
+        assertArrayEquals(COMB_4_0, array(iterable(4, 0)));
+        assertArrayEquals(COMB_4_1, array(iterable(4, 1)));
+        assertArrayEquals(COMB_4_2, array(iterable(4, 2)));
+        assertArrayEquals(COMB_4_3, array(iterable(4, 3)));
+        assertArrayEquals(COMB_4_4, array(iterable(4, 4)));
+        assertArrayEquals(COMB_4_5, array(iterable(4, 5)));
     }
 
 }
