@@ -42,18 +42,24 @@ public class Combination {
         if (k < 0) throw new IllegalArgumentException("k must be >= 0");
         return () -> new Iterator<>() {
             int nmk = n - k;
-            int[] selected = intArray(range(0, k, 1));
-            boolean hasNext = k <= n;
+            // int[] selected = intArray(range(0, k, 1));      
+            int[] selected = new int[k];                    // 結果を格納する配列。
+            {
+                for (int i = 0; i < k; ++i)                 // {0, 1, 2, ... , k - 1}で初期化
+                    selected[i] = i;
+            }
+
+            boolean hasNext = k <= n;                       // k > n のときは該当なし。
 
             private boolean advance() {
-                int i = k - 1;
-                while (i >= 0 && selected[i] >= nmk + i)
+                int i = k - 1;                              // 最後の格納位置。
+                while (i >= 0 && selected[i] >= nmk + i)    // 末尾から最大値を超えない位置を探す。
                     --i;
-                if (i < 0)
+                if (i < 0)                                  // 見つからない場合は終了する。
                     return false;
-                int next = ++selected[i];
-                for (int j = i + 1; j < k; ++j)
-                    selected[j] = ++next;
+                int next = ++selected[i];                   // 最大値を超えていないので＋１する。
+                while (++i < k)                             // それ以降の位置は残りの最小値を設定する。
+                    selected[i] = ++next;
                 return true;
             }
 
