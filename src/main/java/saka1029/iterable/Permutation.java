@@ -21,35 +21,31 @@ public class Permutation {
         if (n < 0) throw new IllegalArgumentException("n must be >= 0");
         if (k < 0) throw new IllegalArgumentException("k must be >= 0");
         return () -> new Iterator<>() {
-            int[] selected = new int[k];        // 選択された数
-            boolean[] used = new boolean[n];    // 使用済みの数
-            int i = 0;                          // 次に選択するselected上の位置
-            int j = 0;                          // 次に試す数
-            boolean hasNext = advance();
+            int[] selected = new int[k];            // 結果を格納する配列。
+            { if (k > 0) selected[0] = -1; }        // 先頭の値を初期値にする。
+            boolean[] used = new boolean[n];        // 値が使用済みであることを判別する配列。
+            int i = 0;                              // 格納位置。
+            boolean hasNext = advance();            // 結果があるかどうかを保持する変数。
 
-            private boolean advance() {
+            private boolean advance() {             // 次の結果があるかどうかを返す。
                 while (true) {
-                    if (i < 0)                      // すべての組み合わせを試し終わった。
-                        return false;
-                    if (i >= k) {                   // すべての数を格納した。
-                        i = k - 1;                  // 次回やり直す位置
-                        if (i >= 0)
-                            j = selected[i] + 1;    // 次回やり直す数
+                    if (i < 0)                      // 配置位置が先頭以前に戻ったとき
+                        return false;               // すべての組み合わせが終了した。
+                    if (i >= k) {                   // 配置が完了した。
+                        --i;                        // 次の配置位置は最後
                         return true;                // 結果を返す。
-                    }                               // 格納途中
-                    if (j > 0)                      // 次回試す数がゼロ以外なら
-                        used[selected[i]] = false;  // 前回の数を未使用にする。
-                    for (;j < n; ++j)               // 未使用の数を探す。
-                        if (!used[j])               // 見つかったら、
-                            break;                  // ループを抜ける
-                    if (j < n) {                    // 未使用の数が見つかった。(次に進む)
-                        selected[i] = j;            // 見つかった数を格納する。
-                        used[j] = true;             // 使用済みにする。
-                        j = 0;                      // 次の位置はゼロから探す。
-                        ++i;                        // 次の位置へ
-                    } else {                        // 未使用の数が見つからなかった。(前に戻る)
-                        if (--i >= 0)               // 前に戻る。
-                            j = selected[i] + 1;    // 次に試す数
+                    }
+                    int j = selected[i];            // 現在配置されている値。
+                    if (j >= 0)                     // 現在配置されている値が初期値でなければ
+                        used[j] = false;            // 未使用とする。
+                    while (++j < n && used[j])      // 未使用の値を見つける。
+                        /* do nothing */;
+                    if (j >= n)                     // 次に配置する値が上限を超えていたら
+                        --i;                        // 配置位置を前に戻す。
+                    else {                          // 配置が有効なら
+                        used[selected[i] = j] = true;  // 配置して値を使用済にする。
+                        if (++i < k)                // 配置位置を次に進める。
+                            selected[i] = -1;
                     }
                 }
             }
@@ -61,9 +57,9 @@ public class Permutation {
 
             @Override
             public int[] next() {
-                int[] r = selected.clone();
+                int[] result = selected.clone();
                 hasNext = advance();
-                return r;
+                return result;
             }
         };
     }

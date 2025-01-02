@@ -1,5 +1,6 @@
 package saka1029.iterable;
 
+import static saka1029.iterable.Iterables.*;
 import java.util.Iterator;
 import java.util.List;
 
@@ -37,6 +38,40 @@ public class Combination {
     }
 
     public static Iterable<int[]> iterable(int n, int k) {
+        if (n < 0) throw new IllegalArgumentException("n must be >= 0");
+        if (k < 0) throw new IllegalArgumentException("k must be >= 0");
+        return () -> new Iterator<>() {
+            int nmk = n - k;
+            int[] selected = intArray(range(0, k, 1));
+            boolean hasNext = k <= n;
+
+            private boolean advance() {
+                int i = k - 1;
+                while (i >= 0 && selected[i] >= nmk + i)
+                    --i;
+                if (i < 0)
+                    return false;
+                int next = ++selected[i];
+                for (int j = i + 1; j < k; ++j)
+                    selected[j] = ++next;
+                return true;
+            }
+
+            @Override
+            public boolean hasNext() {
+                return hasNext;
+            }
+
+            @Override
+            public int[] next() {
+                int[] result = selected.clone();
+                hasNext = advance();
+                return result;
+            }
+        };
+    }
+
+    public static Iterable<int[]> iterableOrg(int n, int k) {
         if (n < 0) throw new IllegalArgumentException("n must be >= 0");
         if (k < 0) throw new IllegalArgumentException("k must be >= 0");
         return () -> new Iterator<>() {
