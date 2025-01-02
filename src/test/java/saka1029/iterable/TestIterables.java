@@ -3,6 +3,7 @@ package saka1029.iterable;
 import static saka1029.iterable.Iterables.*;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -54,22 +55,22 @@ public class TestIterables {
         list(range(0, 3, 0));
     }
 
-    @Test
-    public void testGenerate() {
-        class Seed { int i = 0; }
-        assertEquals(listOf(0, 1, 2),
-            list(generate(Seed::new, seed -> seed.i < 3, seed -> seed.i++)));
-        assertEquals(listOf(0, 1, 2),
-            list(generate(() -> new Object() { int i = 0; },
-                seed -> seed.i < 3, seed -> seed.i++)));
-        assertEquals(listOf(0, 1, 2),
-            list(limit(3, generate(() -> new Object() { int i = 0; },
-                seed -> true, seed -> seed.i++))));
-        Iterable<Integer> gen = generate(() -> new Object() { int i = 0; },
-            seed -> seed.i < 3, seed ->seed.i++);
-        assertEquals(listOf(0, 1, 2), list(gen));
-        assertEquals(listOf(0, 1, 2), list(gen));
-    }
+    // @Test
+    // public void testGenerate() {
+    //     class Seed { int i = 0; }
+    //     assertEquals(listOf(0, 1, 2),
+    //         list(generate(Seed::new, seed -> seed.i < 3, seed -> seed.i++)));
+    //     assertEquals(listOf(0, 1, 2),
+    //         list(generate(() -> new Object() { int i = 0; },
+    //             seed -> seed.i < 3, seed -> seed.i++)));
+    //     assertEquals(listOf(0, 1, 2),
+    //         list(limit(3, generate(() -> new Object() { int i = 0; },
+    //             seed -> true, seed -> seed.i++))));
+    //     Iterable<Integer> gen = generate(() -> new Object() { int i = 0; },
+    //         seed -> seed.i < 3, seed ->seed.i++);
+    //     assertEquals(listOf(0, 1, 2), list(gen));
+    //     assertEquals(listOf(0, 1, 2), list(gen));
+    // }
 
     @Test
     public void testStreamSupplierToIterable() {
@@ -127,6 +128,14 @@ public class TestIterables {
                 zip((a, b) -> a + b,
                     listOf(1, 2, 3, 4),
                     listOf(10, 20, 30))));
+    }
+
+    @Test
+    public void testFlatMap() {
+        assertEquals(listOf(0, 1, 2, 3),
+            list(
+                flatMap(identity(),
+                    listOf(listOf(0, 1), listOf(2), listOf(3)))));
     }
 
     @Test
@@ -206,5 +215,18 @@ public class TestIterables {
         assertEquals(24, factorial(4));
         assertEquals(120, factorial(5));
         assertEquals(720, factorial(6));
+    }
+
+    @Test
+    public void testForEach() {
+        List<Integer> result = new ArrayList<>();
+        forEach(e -> result.add(e), listOf(0, 1, 2));
+        assertEquals(listOf(0, 1, 2), result);
+    }
+
+    @Test
+    public void testFindFirst() {
+        assertEquals(Integer.valueOf(0), findFirst(listOf(0, 1, 2)));
+        assertNull(findFirst(listOf()));
     }
 }

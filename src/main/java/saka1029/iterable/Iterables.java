@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Predicate;
@@ -16,6 +17,14 @@ import java.util.stream.StreamSupport;
 public class Iterables {
 
     private Iterables() {
+    }
+
+    /*
+     * Functions
+     */
+
+    public static <T> Function<T, T> identity() {
+        return Function.identity();
     }
 
     /*
@@ -71,21 +80,21 @@ public class Iterables {
         };
     }
 
-    public static <T, U> Iterable<U> generate(Supplier<T> seed, Predicate<T> hasNext, Function<T, U> next) {
-        return () -> new Iterator<>() {
-            T t = seed.get();
+    // public static <T, U> Iterable<U> generate(Supplier<T> seed, Predicate<T> hasNext, Function<T, U> next) {
+    //     return () -> new Iterator<>() {
+    //         T t = seed.get();
 
-            @Override
-            public boolean hasNext() {
-                return hasNext.test(t);
-            }
+    //         @Override
+    //         public boolean hasNext() {
+    //             return hasNext.test(t);
+    //         }
 
-            @Override
-            public U next() {
-                return next.apply(t);
-            }
-        };
-    }
+    //         @Override
+    //         public U next() {
+    //             return next.apply(t);
+    //         }
+    //     };
+    // }
 
     public static <T> Iterable<T> iterable(Supplier<Stream<T>> source) {
         return () -> source.get().iterator();
@@ -96,8 +105,8 @@ public class Iterables {
      * ただし変換後のIterableに対して、
      * iterator()は一度しか呼び出せない点に注意する必要があります。
      * @param <T>
-     * @param source
-     * @return
+     * @param source 変換するStreamを指定します。
+     * @return StreamをIterable<T>に変換した結果を返します。
      */
     public static <T> Iterable<T> iterable(Stream<T> source) {
         return source::iterator;
@@ -118,6 +127,43 @@ public class Iterables {
             @Override
             public U next() {
                 return mapper.apply(iterator.next());
+            }
+        };
+    }
+
+    public static <T, U> Iterable<U> flatMap(
+            Function<? super T,? extends Iterable<? extends U>> mapper, Iterable<T> source) {
+        return () -> new Iterator<>() {
+            final Iterator<T> parent = source.iterator();
+            Iterator<? extends U> child = null;
+            boolean hasNext = advance();
+            U next;
+
+            private boolean advance() {
+                while (true) {
+                    if (child == null) {
+                        if (!parent.hasNext())
+                            return false;
+                        child = mapper.apply(parent.next()).iterator();
+                    }
+                    if (child.hasNext()) {
+                        next = child.next();
+                        return true;
+                    }
+                    child = null;
+                }
+            }
+
+            @Override
+            public boolean hasNext() {
+                return hasNext;
+            }
+
+            @Override
+            public U next() {
+                U result = next;
+                hasNext = advance();
+                return result;
             }
         };
     }
@@ -256,8 +302,7 @@ public class Iterables {
         return result;
     }
 
-    public static <U, V> Map<U, V> map(
-            Iterable<U> keySource, Iterable<V> valueSource) {
+    public static <U, V> Map<U, V> map(Iterable<U> keySource, Iterable<V> valueSource) {
         return map(HashMap::new, keySource, valueSource);
     }
 
@@ -266,5 +311,22 @@ public class Iterables {
         for (T e : source)
             result = reducer.apply(result, e);
         return result;
+    }
+
+    public static <T> void forEach(Consumer<? super T> consumer, Iterable<T> source) {
+        for (T e : source)
+            consumer.accept(e);
+    }
+
+    public static <T> T findAny(Predicate<? super T> predicate, Iterable<T> source) {
+        for (T e : source)
+            if (predicate.test(e))
+                return e;
+        return null;
+    }
+
+    public static <T> T findFirst(Iterable<T> source) {
+        Iterator<T> iterator = source.iterator();
+        return iterator.hasNext() ? iterator.next() : null;
     }
 }

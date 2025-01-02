@@ -1,6 +1,5 @@
 package saka1029.iterable;
 
-import static saka1029.iterable.Iterables.*;
 import java.util.Iterator;
 import java.util.List;
 
@@ -60,50 +59,6 @@ public class Combination {
                 while (++i < k)                             // それ以降の位置は残りの最小値を設定する。
                     selected[i] = ++next;
                 return true;
-            }
-
-            @Override
-            public boolean hasNext() {
-                return hasNext;
-            }
-
-            @Override
-            public int[] next() {
-                int[] result = selected.clone();
-                hasNext = advance();
-                return result;
-            }
-        };
-    }
-
-    public static Iterable<int[]> iterableOrg(int n, int k) {
-        if (n < 0) throw new IllegalArgumentException("n must be >= 0");
-        if (k < 0) throw new IllegalArgumentException("k must be >= 0");
-        return () -> new Iterator<>() {
-
-            int i = 0;  // 次に格納する場所
-            int j = 0;  // 次に格納する値
-            final int[] selected = new int[k];
-            boolean hasNext = advance();
-
-            private boolean advance() {
-                // if (k > n)
-                //     return false;
-                while (true) {
-                    if (i >= k) {                   // すべての値が格納されたら
-                        if (--i >= 0)
-                            j = selected[i] + 1;    // 次の格納位置は(k -1)、格納する値は現在格納されている値 + 1
-                        return true;                // 結果を返す。
-                    }
-                    if (i < 0 || j >= n && i <= 0) { // 先頭で格納する値がなければすべて終了する。
-                        System.out.printf("n=%d k=%d i=%d j=%d%n", n, k, i, j);
-                        return false;
-                    }
-                    if (j >= n)                     // 格納する値が最大値を超えたら
-                        j = selected[--i] + 1;      // 一つ前に戻る。
-                    else
-                        selected[i++] = j++;        // 格納して次の位置へ進む。
-                }
             }
 
             @Override
