@@ -41,9 +41,8 @@ public class Combination {
         if (n < 0) throw new IllegalArgumentException("n must be >= 0");
         if (k < 0) throw new IllegalArgumentException("k must be >= 0");
         return () -> new Iterator<>() {
-            int nmk = n - k;
-            // int[] selected = intArray(range(0, k, 1));      
-            int[] selected = new int[k];                    // 結果を格納する配列。
+            final int nmk = n - k;                          // 各位置における最大値(n - k + i)を求める定数。
+            final int[] selected = new int[k];              // 結果を格納する配列。
             {
                 for (int i = 0; i < k; ++i)                 // {0, 1, 2, ... , k - 1}で初期化
                     selected[i] = i;
@@ -57,7 +56,7 @@ public class Combination {
                     --i;
                 if (i < 0)                                  // 見つからない場合は終了する。
                     return false;
-                int next = ++selected[i];                   // 最大値を超えていないので＋１する。
+                int next = ++selected[i];                   // 次の値に進める。
                 while (++i < k)                             // それ以降の位置は残りの最小値を設定する。
                     selected[i] = ++next;
                 return true;
