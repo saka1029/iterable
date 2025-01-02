@@ -202,6 +202,27 @@ public class TestIterables {
             61, 67, 71, 73, 79, 83, 89, 97), list(primes(100)));
     }
 
+    static Iterable<Integer> primes2(int max) {
+        Iterable<Integer> primes = range(2, max, 1);
+        Function<Integer, Predicate<Integer>> sieve = n -> i -> i == n || i % n != 0;
+        primes = filter(sieve.apply(2), primes);
+        primes = filter(sieve.apply(3), primes);
+        int n = (int) Math.sqrt(max);
+        for (int i = 5; i <= n; i += 6) {
+            primes = filter(sieve.apply(i), primes);
+            primes = filter(sieve.apply(i + 2), primes);
+        }
+        return primes;
+    }
+
+    @Test
+    public void testPrime2() {
+        assertEquals(listOf(
+            2, 3, 5, 7, 11, 13, 17, 19, 23,
+            29, 31, 37, 41, 43, 47, 53, 59,
+            61, 67, 71, 73, 79, 83, 89, 97), list(primes2(100)));
+    }
+
     static int factorial(int n) {
         return reduce(1, (a, b) -> a * b, range(1, n + 1, 1));
     }
