@@ -3,12 +3,15 @@ package saka1029.iterable;
 import static saka1029.iterable.Iterables.*;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -153,6 +156,11 @@ public class TestIterables {
     }
 
     @Test
+    public void testDistinct() {
+        assertEquals(Set.of(0, 1, 2), distinct(listOf(0, 1, 1, 2, 0, 2)));
+    }
+
+    @Test
     public void testStream() {
         assertEquals(listOf(1, 2, 3), stream(listOf(1, 2, 3)).toList());
     }
@@ -177,6 +185,23 @@ public class TestIterables {
             map(listOf(0, 1, 2), List.of("zero", "one")));
         assertEquals(Map.of(0, "zero", 1, "one"),
             map(listOf(0, 1), List.of("zero", "one", "two")));
+    }
+
+    @Test
+    public void testAllMatch() {
+        assertTrue(allMatch(n -> n < 10, listOf(0, 1, 2)));
+        assertFalse(allMatch(n -> n > 10, listOf(0, 1, 2)));
+    }
+
+    @Test
+    public void testAnyMatch() {
+        assertTrue(anyMatch(n -> n < 10, listOf(0, 1, 2)));
+        assertFalse(anyMatch(n -> n > 10, listOf(0, 1, 2)));
+    }
+
+    @Test
+    public void testCount() {
+        assertEquals(3, count(range(0, 3, 1)));
     }
 
     @Test
@@ -243,6 +268,14 @@ public class TestIterables {
         List<Integer> result = new ArrayList<>();
         forEach(e -> result.add(e), listOf(0, 1, 2));
         assertEquals(listOf(0, 1, 2), result);
+    }
+
+    @Test
+    public void testFindAny() {
+        assertEquals(Integer.valueOf(5), findAny(x -> x.equals(5),
+            listOf(3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5)));
+        assertNull(findAny(x -> x.equals(7),
+            listOf(3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5)));
     }
 
     @Test

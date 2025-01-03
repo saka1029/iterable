@@ -3,8 +3,10 @@ package saka1029.iterable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -250,6 +252,13 @@ public class Iterables {
         };
     }
 
+    public static <T> Iterable<T> distinct(Iterable<T> source) {
+        Set<T> set = new LinkedHashSet<>();
+        for (T e : source)
+            set.add(e);
+        return set;
+    }
+
     public static <T> Stream<T> stream(Iterable<T> iterable) {
         return StreamSupport.stream(iterable.spliterator(), false);
     }
@@ -257,6 +266,27 @@ public class Iterables {
     /*
      * Terminator
      */
+    public static <T> boolean allMatch(Predicate<? super T> predicate, Iterable<T> source) {
+        for (T e : source)
+            if (!predicate.test(e))
+                return false;
+        return true;
+    }
+
+    public static <T> boolean anyMatch(Predicate<? super T> predicate, Iterable<T> source) {
+        for (T e : source)
+            if (predicate.test(e))
+                return true;
+        return false;
+    }
+
+    public static <T> int count(Iterable<T> source) {
+        int count = 0;
+        for (@SuppressWarnings("unused") T e : source)
+            ++count;
+        return count;
+    }
+
     public static <T> T[] array(IntFunction<T[]> constructor, Iterable<T> source) {
         return stream(source).toArray(constructor);
     }
