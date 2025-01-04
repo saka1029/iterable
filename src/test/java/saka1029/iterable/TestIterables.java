@@ -166,6 +166,11 @@ public class TestIterables {
     }
 
     @Test
+    public void testIntArray() {
+        assertArrayEquals(new int[] {0, 1, 2}, intArray(intListOf(0, 1, 2)));
+    }
+
+    @Test
     public void testHashMap() {
         Map<String, Integer> map = map(s -> s, s -> s.length(), listOf("one", "two", "three"));
         assertEquals(Map.of("one", 3, "two", 3, "three", 5), map);
