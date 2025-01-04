@@ -16,6 +16,7 @@ public class TestContinuation {
     static final Result CONTINUE = new Result(ResultType.CONTINUE, -1);
     static final Result BREAK = new Result(ResultType.CONTINUE, -1);
     static final Result END = new Result(ResultType.END, -1);
+    static Result yield(int value) { return new Result(ResultType.YIELD, value); }
 
     static class Context {
         int pc = 0;
