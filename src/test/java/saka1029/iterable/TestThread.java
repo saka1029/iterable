@@ -7,7 +7,7 @@ import org.junit.Test;
 public class TestThread {
 
     enum Status {
-        EMPTY, FILLED, END;
+        EMPTY, FILLED;
     }
 
     class Holder<T> {
@@ -29,19 +29,12 @@ public class TestThread {
         }
 
         synchronized T receive() throws InterruptedException {
-            if (status != Status.FILLED && status != Status.END)
+            if (status != Status.FILLED)
                 wait();
-            T result = status == Status.FILLED ? value : null;
+            T result = value;
             status = Status.EMPTY;
             notify();
             return result;
-        }
-
-        synchronized void close() throws InterruptedException {
-            if (status != Status.EMPTY)
-                wait();
-            status = Status.END;
-            notify();
         }
     }
 
@@ -52,7 +45,7 @@ public class TestThread {
             try {
                 for (int i = 0; i < 10; ++i)
                     holder.send(i, "producer: send " + i);
-                holder.close();
+                holder.send(null, null);
                 System.out.println("producer: end");
             } catch (InterruptedException e) {
                 e.printStackTrace();
