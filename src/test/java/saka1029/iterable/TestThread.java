@@ -13,18 +13,17 @@ public class TestThread {
     class Holder<T> {
         Status status;
         T value;
+
         Holder(Status status, T value) {
             this.status = status;
             this.value = value;
         }
 
-        synchronized void send(T value, String message) throws InterruptedException {
+        synchronized void send(T value) throws InterruptedException {
             if (status != Status.EMPTY)
                 wait();
             status = Status.FILLED;
             this.value = value;
-            if (message != null)
-                System.out.println(message);
             notify();
         }
 
@@ -43,9 +42,11 @@ public class TestThread {
         Holder<Integer> holder = new Holder<>(Status.EMPTY, -1);
         Thread producer = Thread.ofVirtual().start(() -> {
             try {
-                for (int i = 0; i < 10; ++i)
-                    holder.send(i, "producer: send " + i);
-                holder.send(null, null);
+                for (int i = 0; i < 10; ++i) {
+                    System.out.println("producer: send " + i);
+                    holder.send(i);
+                }
+                holder.send(null);
                 System.out.println("producer: end");
             } catch (InterruptedException e) {
                 e.printStackTrace();
