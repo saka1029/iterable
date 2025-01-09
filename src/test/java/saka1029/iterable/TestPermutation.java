@@ -141,4 +141,69 @@ public class TestPermutation {
                     filter(d -> isSendMoreMoney(d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7]),
                         iterable(10, 8)))));
     }
+
+    /**
+     * 
+     * <code><pre>
+     * problem SendMoreMoney
+     * variable 1 9 s m
+     * variable 0 9 e n d o r y
+     * allDifferent s e n d m o r y
+     * constraint n(s, e, n, d) + n(m, o, r, e) == n(m, o, n, e, y)
+     * 
+     * static int n(int... digits) {
+     *     int n = 0;
+     *     for (int i : digits)
+     *         n = n * 10 + i;
+     *     return n;
+     * }
+     * </pre></code>
+     */
+    static int solve() {
+        int count = 0;
+        System.out.println("s,m,e,n,d,o,r,y");
+        for (int s = 1; s <= 9; ++s)
+        for (int m = 1; m <= 9; ++m)
+        if (s != m)
+        for (int e = 0; e <= 9; ++e)
+        if (s != e && e != m)
+        for (int n = 0; n <= 9; ++n)
+        if (s != n && n != m && e != n)
+        for (int d = 0; d <= 9; ++d)
+        if (s != d && n != d && e != d && d != m)
+        for (int o = 0; o <= 9; ++o)
+        if (m != o && n != o && e != o && d != o && s != o)
+        for (int r = 0; r <= 9; ++r)
+        if (d != r && n != r && o != r && s != r && m != r && e != r)
+        for (int y = 0; y <= 9; ++y)
+        if (n != y && s != y && o != y && n(s, e, n, d) + n(m, o, r, e) == n(m, o, n, e, y) && m != y && r != y && d != y && e != y)
+        {
+            ++count;
+            System.out.printf("%d,%d,%d,%d,%d,%d,%d,%d%n", s, m, e, n, d, o, r, y);
+            assertEquals(9, s);
+            assertEquals(1, m);
+            assertEquals(5, e);
+            assertEquals(6, n);
+            assertEquals(7, d);
+            assertEquals(0, o);
+            assertEquals(8, r);
+            assertEquals(2, y);
+        }
+        return count;
+    }
+
+    static int n(int... digits) {
+        int n = 0;
+        for (int i : digits)
+            n = n * 10 + i;
+        return n;
+    }
+
+    @Test
+    public void testSendMoreMoneyCSP() {
+        long start = System.currentTimeMillis();
+        int count = solve();
+        System.err.printf("solutions: " + count + ", elapse: %d msec.%n", System.currentTimeMillis() - start);
+    }
+
 }
