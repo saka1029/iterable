@@ -6,9 +6,9 @@ import static saka1029.iterable.TestPermutation.*;
 import java.util.Iterator;
 import org.junit.Test;
 
-public class TestSync {
+public class TestSyncVar {
 
-    public static class Sync {
+    public static class SyncVar {
 
         int[] value = null;
         boolean filled = false;
@@ -50,13 +50,14 @@ public class TestSync {
         return () -> new Iterator<>() {
             int[] selected = new int[k];
             boolean[] used = new boolean[n];
-            Sync sync = new Sync();
+            SyncVar syncVar = new SyncVar();
             int[] received = null;
-            Thread thread = Thread.ofVirtual().start(() -> { solve(0); sync.set(null); });
+            // Thread thread = Thread.ofVirtual().start(() -> { solve(0); syncVar.set(null); });
+            Thread thread = Thread.ofPlatform().start(() -> { solve(0); syncVar.set(null); });
 
             private void solve(int i) {
                 if (i >= k)
-                    sync.set(selected.clone());
+                    syncVar.set(selected.clone());
                 else
                     for (int j = 0; j < n; ++j)
                         if (!used[j]) {
@@ -70,9 +71,9 @@ public class TestSync {
             boolean hasNext = advance();
 
             private boolean advance() {
-                received = sync.get();
+                received = syncVar.get();
                 if (received == null) {
-                    Sync.join(thread);
+                    SyncVar.join(thread);
                     return false;
                 }
                 return true;
