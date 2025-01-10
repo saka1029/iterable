@@ -3,34 +3,41 @@ package saka1029.iterable;
 import static org.junit.Assert.assertArrayEquals;
 import static saka1029.iterable.Iterables.*;
 import static saka1029.iterable.TestPermutation.*;
+
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Iterator;
+import java.util.LinkedList;
+
 import org.junit.Test;
 
-public class TestSyncVar {
+public class TestQue {
 
-    public static class SyncVar {
+    public static class Que<T> {
 
-        int[] value = null;
-        boolean filled = false;
+        final int capacity;
+        final Deque<T> que = new LinkedList<>();
 
-        public synchronized void set(int[] newValue) {
+        public Que(int capacity) {
+            this.capacity = capacity;
+        }
+
+        public synchronized void add(T newValue) {
             try {
-                while (filled)
+                while (que.size() >= capacity)
                     wait();
-                value = newValue;
-                filled = true;
+                que.add(newValue);
                 notify();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }
 
-        public synchronized int[] get() {
+        public synchronized T remove() {
             try {
-                while (!filled)
+                while (que.size() <= 0)
                     wait();
-                int[] result = value == null ? null : value.clone();
-                filled = false;
+                T result = que.remove();
                 notify();
                 return result;
             } catch (InterruptedException e) {
@@ -50,14 +57,14 @@ public class TestSyncVar {
         return () -> new Iterator<>() {
             int[] selected = new int[k];
             boolean[] used = new boolean[n];
-            SyncVar syncVar = new SyncVar();
+            Que<int[]> que = new Que<>(5);
             int[] received = null;
-            // Thread thread = Thread.ofVirtual().start(() -> { solve(0); syncVar.set(null); });
-            Thread thread = Thread.ofPlatform().start(() -> { solve(0); syncVar.set(null); });
+            Thread thread = Thread.ofVirtual().start(() -> { solve(0); que.add(null); });
+            // Thread thread = Thread.ofPlatform().start(() -> { solve(0); que.add(null); });
 
             private void solve(int i) {
                 if (i >= k)
-                    syncVar.set(selected.clone());
+                    que.add(selected.clone());
                 else
                     for (int j = 0; j < n; ++j)
                         if (!used[j]) {
@@ -71,9 +78,9 @@ public class TestSyncVar {
             boolean hasNext = advance();
 
             private boolean advance() {
-                received = syncVar.get();
+                received = que.remove();
                 if (received == null) {
-                    SyncVar.join(thread);
+                    Que.join(thread);
                     return false;
                 }
                 return true;
@@ -117,9 +124,5 @@ public class TestSyncVar {
         assertArrayEquals(PERM_4_2, array(permutation(4, 2)));
         assertArrayEquals(PERM_4_3, array(permutation(4, 3)));
         assertArrayEquals(PERM_4_4, array(permutation(4, 4)));
-    }
-
-    @Test
-    public void testCloneable() {
     }
 }
