@@ -8,39 +8,41 @@ import org.junit.Test;
 
 public class TestSync {
 
-
     public static class Sync {
 
-        public enum Status { EMPTY, SET, CLOSED }
+        int[] value = null;
+        boolean filled = false;
 
-        Status status = Status.EMPTY;
-
-        public synchronized void set() throws InterruptedException {
-            while (status == Status.SET)
-                wait();
-            if (status == Status.CLOSED)
-                throw new IllegalStateException("closed");
-            status = Status.SET;
-            notify();
+        public synchronized void set(int[] newValue) {
+            try {
+                while (filled)
+                    wait();
+                value = newValue;
+                filled = true;
+                notify();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
 
-        public synchronized void close() throws InterruptedException {
-            while (status == Status.SET)
-                wait();
-            if (status == Status.CLOSED)
-                throw new IllegalStateException("closed");
-            status = Status.CLOSED;
-            notify();
+        public synchronized int[] get() {
+            try {
+                while (!filled)
+                    wait();
+                int[] result = value == null ? null : value.clone();
+                filled = false;
+                notify();
+                return result;
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
-
-        public synchronized Status get() throws InterruptedException {
-            while (status == Status.EMPTY)
-                wait();
-            if (status == Status.CLOSED)
-                throw new IllegalStateException("closed");
-            Status result = status;
-            notify();
-            return result;
+        public static void join(Thread thread) {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -49,45 +51,34 @@ public class TestSync {
             int[] selected = new int[k];
             boolean[] used = new boolean[n];
             Sync sync = new Sync();
-            {
-                Thread.ofVirtual().start(() -> {
-                    new Object() {
-                        void found() {
-                            try {
-                                sync.set();
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        }
-
-                        void set(int i, int j) {
-                            used[j] = true;
-                            selected[i] = j;
-                            solve(i + 1);
-                            used[j] = false;
-                        }
-
-                        void solve(int i) {
-                            if (i >= k)
-                                found();
-                            else
-                                for (int j = 0; j < n; ++j)
-                                    if (!used[j])
-                                        set(i, j);
-                        }
-                    }.solve(0);
-                });
-            }
+            int[] received = null;
+            Thread thread = Thread.ofVirtual().start(() -> {
+                new Object() {
+                    void solve(int i) {
+                        if (i >= k)
+                            sync.set(selected.clone());
+                        else
+                            for (int j = 0; j < n; ++j)
+                                if (!used[j]) {
+                                    used[j] = true;
+                                    selected[i] = j;
+                                    solve(i + 1);
+                                    used[j] = false;
+                                }
+                    }
+                }.solve(0);
+                sync.set(null);
+            });
 
             boolean hasNext = advance();
 
             private boolean advance() {
-                try {
-                    Sync.Status status = sync.get();
-                    return status != Sync.Status.CLOSED;
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                received = sync.get();
+                if (received == null) {
+                    Sync.join(thread);
+                    return false;
                 }
+                return true;
             }
 
             @Override
@@ -97,7 +88,7 @@ public class TestSync {
 
             @Override
             public int[] next() {
-                int[] result = selected.clone();
+                int[] result = received;
                 hasNext = advance();
                 return result;
             }
