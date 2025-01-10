@@ -52,23 +52,20 @@ public class TestSync {
             boolean[] used = new boolean[n];
             Sync sync = new Sync();
             int[] received = null;
-            Thread thread = Thread.ofVirtual().start(() -> {
-                new Object() {
-                    void solve(int i) {
-                        if (i >= k)
-                            sync.set(selected.clone());
-                        else
-                            for (int j = 0; j < n; ++j)
-                                if (!used[j]) {
-                                    used[j] = true;
-                                    selected[i] = j;
-                                    solve(i + 1);
-                                    used[j] = false;
-                                }
-                    }
-                }.solve(0);
-                sync.set(null);
-            });
+            Thread thread = Thread.ofVirtual().start(() -> { solve(0); sync.set(null); });
+
+            private void solve(int i) {
+                if (i >= k)
+                    sync.set(selected.clone());
+                else
+                    for (int j = 0; j < n; ++j)
+                        if (!used[j]) {
+                            used[j] = true;
+                            selected[i] = j;
+                            solve(i + 1);
+                            used[j] = false;
+                        }
+            }
 
             boolean hasNext = advance();
 
