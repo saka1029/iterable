@@ -45,5 +45,6 @@ public class TestGenerator {
     public void testFibonacciStatic() {
         Generator<Integer> fibonacci = new Generator<>(TestGenerator::fibonacci);
         assertEquals(listOf(0, 1, 1, 2, 3, 5, 8, 13), list(limit(8, fibonacci)));
+        assertEquals(listOf(0, 1, 1, 2, 3, 5, 8, 13), list(limit(8, new Generator<>(TestGenerator::fibonacci))));
     }
 }
