@@ -11,7 +11,7 @@ public class Generator<T> implements Iterable<T> {
     private final Queue<T> que = new LinkedList<>();
     final Runnable runnable;
 
-    private Generator(Consumer<Generator<T>> generator) {
+    public Generator(Consumer<Generator<T>> generator) {
         this.runnable = () -> {
             generator.accept(this);
             yields(null);

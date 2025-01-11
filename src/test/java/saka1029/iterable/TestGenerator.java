@@ -8,7 +8,7 @@ public class TestGenerator {
 
     @Test
     public void testGenerator() {
-        Generator<Integer> g = Generator.of(q -> {
+        Generator<Integer> g = new Generator<>(q -> {
             q.yields(1);
             q.yields(0);
             q.yields(3);
@@ -19,7 +19,7 @@ public class TestGenerator {
 
     @Test
     public void testFibonacci() {
-        Generator<Integer> generator = Generator.of(g -> {
+        Generator<Integer> generator = new Generator<>(g -> {
             int a = 0, b = 1;
             while (true) {
                 g.yields(a);
