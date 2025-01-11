@@ -14,28 +14,30 @@ public class TestSyncHolder {
         boolean filled = false;
 
         public synchronized void set(T newValue) {
-            try {
-                while (filled)
+            while (filled)
+                try {
                     wait();
-                value = newValue;
-                filled = true;
-                notify();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    return;
+                }
+            value = newValue;
+            filled = true;
+            notify();
         }
 
         public synchronized T get() {
-            try {
-                while (!filled)
+            while (!filled)
+                try {
                     wait();
-                T result = value;
-                filled = false;
-                notify();
-                return result;
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            T result = value;
+            filled = false;
+            notify();
+            return result;
         }
     }
 
@@ -45,7 +47,12 @@ public class TestSyncHolder {
             boolean[] used = new boolean[n];
             SyncHolder<int[]> holder = new SyncHolder<>();
             int[] received = null;
-            { Thread.ofVirtual().start(() -> { solve(0); holder.set(null); }); }
+            {
+                Thread.ofVirtual().start(() -> {
+                    solve(0);
+                    holder.set(null);
+                });
+            }
 
             private void solve(int i) {
                 if (i >= k)

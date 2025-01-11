@@ -3,6 +3,7 @@ package saka1029.iterable;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static saka1029.iterable.Iterables.*;
+import java.util.Iterator;
 import org.junit.Test;
 
 public class TestCombination {

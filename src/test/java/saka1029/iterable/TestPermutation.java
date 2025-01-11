@@ -2,6 +2,7 @@ package saka1029.iterable;
 
 import static saka1029.iterable.Iterables.*;
 import static saka1029.iterable.Permutation.*;
+import java.util.Iterator;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
@@ -205,5 +206,4 @@ public class TestPermutation {
         int count = solve();
         System.err.printf("solutions: " + count + ", elapse: %d msec.%n", System.currentTimeMillis() - start);
     }
-
 }

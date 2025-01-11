@@ -4,49 +4,10 @@ import static org.junit.Assert.assertArrayEquals;
 import static saka1029.iterable.Iterables.*;
 import static saka1029.iterable.TestPermutation.*;
 import static saka1029.iterable.TestCombination.*;
-import java.util.Deque;
 import java.util.Iterator;
-import java.util.LinkedList;
 import org.junit.Test;
 
 public class TestSyncQue {
-
-    public static class SyncQue<T> {
-
-        final int capacity;
-        final Deque<T> que = new LinkedList<>();
-
-        public SyncQue(int capacity) {
-            this.capacity = capacity;
-        }
-
-        public synchronized void add(T newValue) {
-            try {
-                while (que.size() >= capacity)
-                    wait();
-                que.add(newValue);
-                notify();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        public synchronized T remove() {
-            try {
-                while (que.size() <= 0)
-                    wait();
-                T result = que.remove();
-                notify();
-                return result;
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        public static Thread start(Runnable runnable) {
-            return Thread.ofVirtual().start(runnable);
-        }
-    }
 
     public static Iterable<int[]> permutation(int n, int k) {
         return () -> new Iterator<>() {
@@ -184,5 +145,4 @@ public class TestSyncQue {
         assertArrayEquals(COMB_4_4, array(combination(4, 4)));
         assertArrayEquals(COMB_4_5, array(combination(4, 5)));
     }
-
 }
