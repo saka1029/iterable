@@ -34,7 +34,7 @@ public class Generator<T> implements Iterable<T> {
         notify();
     }
 
-    private synchronized T remove() {
+    private synchronized T take() {
         while (que.size() <= 0)
             try {
                 wait();
@@ -52,7 +52,7 @@ public class Generator<T> implements Iterable<T> {
         Thread t = new Thread(runnable);
         t.start();
         return new Iterator<>() {
-            T next = Generator.this.remove();
+            T next = take();
 
             @Override
             public boolean hasNext() {
@@ -62,7 +62,7 @@ public class Generator<T> implements Iterable<T> {
             @Override
             public T next() {
                 T result = next;
-                next = Generator.this.remove();
+                next = take();
                 return result;
             }
         };
