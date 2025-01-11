@@ -19,7 +19,7 @@ public class TestGenerator {
 
     @Test
     public void testFibonacci() {
-        Generator<Integer> generator = new Generator<>(g -> {
+        Generator<Integer> fibonacci = new Generator<>(g -> {
             int a = 0, b = 1;
             while (true) {
                 g.yields(a);
@@ -28,7 +28,7 @@ public class TestGenerator {
                 b = c;
             }
         });
-        assertEquals(listOf(0, 1, 1, 2, 3, 5, 8, 13), list(limit(8, generator)));
+        assertEquals(listOf(0, 1, 1, 2, 3, 5, 8, 13), list(limit(8, fibonacci)));
     }
 
 }
