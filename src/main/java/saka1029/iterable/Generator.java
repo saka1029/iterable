@@ -3,17 +3,26 @@ package saka1029.iterable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.function.Consumer;
 
-public class SyncQue<T> {
+public class Generator<T> implements Iterable<T> {
 
-    final int capacity;
+    final int capacity = 10;
     private final Queue<T> que = new LinkedList<>();
+    final Runnable runnable;
 
-    SyncQue(int capacity) {
-        this.capacity = capacity;
+    private Generator(Consumer<Generator<T>> generator) {
+        this.runnable = () -> {
+            generator.accept(this);
+            yields(null);
+        };
     }
 
-    public synchronized void add(T newValue) {
+    public static <T> Generator<T> of(Consumer<Generator<T>> generator) {
+        return new Generator<>(generator);
+    }
+
+    public synchronized void yields(T newValue) {
         while (que.size() >= capacity)
             try {
                 wait();
@@ -25,7 +34,7 @@ public class SyncQue<T> {
         notify();
     }
 
-    public synchronized T remove() {
+    private synchronized T remove() {
         while (que.size() <= 0)
             try {
                 wait();
@@ -38,9 +47,12 @@ public class SyncQue<T> {
         return result;
     }
 
+    @Override
     public Iterator<T> iterator() {
+        Thread t = new Thread(runnable);
+        t.start();
         return new Iterator<>() {
-            T next = SyncQue.this.remove();
+            T next = Generator.this.remove();
 
             @Override
             public boolean hasNext() {
@@ -50,7 +62,7 @@ public class SyncQue<T> {
             @Override
             public T next() {
                 T result = next;
-                next = SyncQue.this.remove();
+                next = Generator.this.remove();
                 return result;
             }
         };

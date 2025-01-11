@@ -1,13 +1,27 @@
 package saka1029.iterable;
 
-import static org.junit.Assert.assertArrayEquals;
 import static saka1029.iterable.Iterables.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static saka1029.iterable.TestPermutation.*;
 import static saka1029.iterable.TestCombination.*;
 import java.util.Iterator;
+import java.util.List;
 import org.junit.Test;
 
 public class TestSyncQue {
+
+    @Test
+    public void testGenerator() {
+        SyncQue<Integer> que = new SyncQue<>(4);
+        SyncQue.start(() -> {
+            que.add(3);
+            que.add(2);
+            que.add(5);
+            que.add(null);
+        });
+        assertEquals(List.of(3, 2, 5), list(que::iterator));
+    }
 
     public static Iterable<int[]> permutation(int n, int k) {
         return () -> new Iterator<>() {
