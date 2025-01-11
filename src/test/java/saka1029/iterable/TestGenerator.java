@@ -31,4 +31,19 @@ public class TestGenerator {
         assertEquals(listOf(0, 1, 1, 2, 3, 5, 8, 13), list(limit(8, fibonacci)));
     }
 
+    static void fibonacci(Generator<Integer> g) {
+        int a = 0, b = 1;
+        while (true) {
+            g.yield(a);
+            int c = a + b;
+            a = b;
+            b = c;
+        }
+    }
+
+    @Test
+    public void testFibonacciStatic() {
+        Generator<Integer> fibonacci = new Generator<>(TestGenerator::fibonacci);
+        assertEquals(listOf(0, 1, 1, 2, 3, 5, 8, 13), list(limit(8, fibonacci)));
+    }
 }
