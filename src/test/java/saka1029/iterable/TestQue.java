@@ -25,6 +25,7 @@ public class TestQue {
             try {
                 while (que.size() >= capacity)
                     wait();
+                System.out.println("add: size=" + que.size());
                 que.add(newValue);
                 notify();
             } catch (InterruptedException e) {
@@ -36,6 +37,7 @@ public class TestQue {
             try {
                 while (que.size() <= 0)
                     wait();
+                System.out.println("remove: size=" + que.size());
                 T result = que.remove();
                 notify();
                 return result;
