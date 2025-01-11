@@ -3,19 +3,20 @@ package saka1029.iterable;
 import static org.junit.Assert.assertArrayEquals;
 import static saka1029.iterable.Iterables.*;
 import static saka1029.iterable.TestPermutation.*;
+import static saka1029.iterable.TestCombination.*;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
 import org.junit.Test;
 
-public class TestQue {
+public class TestSyncQue {
 
-    public static class Que<T> {
+    public static class SyncQue<T> {
 
         final int capacity;
         final Deque<T> que = new LinkedList<>();
 
-        public Que(int capacity) {
+        public SyncQue(int capacity) {
             this.capacity = capacity;
         }
 
@@ -23,7 +24,6 @@ public class TestQue {
             try {
                 while (que.size() >= capacity)
                     wait();
-                // System.out.println("add: size=" + que.size());
                 que.add(newValue);
                 notify();
             } catch (InterruptedException e) {
@@ -35,7 +35,6 @@ public class TestQue {
             try {
                 while (que.size() <= 0)
                     wait();
-                // System.out.println("remove: size=" + que.size());
                 T result = que.remove();
                 notify();
                 return result;
@@ -53,10 +52,10 @@ public class TestQue {
         return () -> new Iterator<>() {
             int[] selected = new int[k];
             boolean[] used = new boolean[n];
-            Que<int[]> que = new Que<>(1);
+            SyncQue<int[]> que = new SyncQue<>(5);
             int[] received = null;
             {
-                Que.start(() -> {
+                SyncQue.start(() -> {
                     solve(0);
                     que.add(null);
                 });
@@ -120,4 +119,70 @@ public class TestQue {
         assertArrayEquals(PERM_4_3, array(permutation(4, 3)));
         assertArrayEquals(PERM_4_4, array(permutation(4, 4)));
     }
+
+    static Iterable<int[]> combination(int n, int k) {
+        return () -> new Iterator<>() {
+            int[] selected = new int[k];
+            SyncQue<int[]> syncQue = new SyncQue<>(5);
+            {
+                Thread.ofVirtual().start(() -> { solve(0, 0); syncQue.add(null); });
+            }
+
+            private void solve(int i, int j) {
+                if (i >= k)
+                    syncQue.add(selected.clone());
+                else
+                    for (; j < n; ++j) {
+                        selected[i] = j;
+                        solve(i + 1, j + 1);
+                    }
+            }
+
+            int[] received;
+            boolean hasNext = advance();
+
+            private boolean advance() {
+                return (received = syncQue.remove()) != null;
+            }
+
+            @Override
+            public boolean hasNext() {
+                return hasNext;
+            }
+
+            @Override
+            public int[] next() {
+                int[] result = received;
+                hasNext = advance();
+                return result;
+            }
+        };
+    }
+
+    @Test
+    public void testCombination() {
+        assertArrayEquals(COMB_0_0, array(combination(0, 0)));
+        assertArrayEquals(COMB_0_1, array(combination(0, 1)));
+        assertArrayEquals(COMB_0_2, array(combination(0, 2)));
+        assertArrayEquals(COMB_0_3, array(combination(0, 3)));
+        assertArrayEquals(COMB_1_0, array(combination(1, 0)));
+        assertArrayEquals(COMB_1_1, array(combination(1, 1)));
+        assertArrayEquals(COMB_1_2, array(combination(1, 2)));
+        assertArrayEquals(COMB_1_3, array(combination(1, 3)));
+        assertArrayEquals(COMB_2_0, array(combination(2, 0)));
+        assertArrayEquals(COMB_2_1, array(combination(2, 1)));
+        assertArrayEquals(COMB_2_2, array(combination(2, 2)));
+        assertArrayEquals(COMB_2_3, array(combination(2, 3)));
+        assertArrayEquals(COMB_3_0, array(combination(3, 0)));
+        assertArrayEquals(COMB_3_1, array(combination(3, 1)));
+        assertArrayEquals(COMB_3_2, array(combination(3, 2)));
+        assertArrayEquals(COMB_3_3, array(combination(3, 3)));
+        assertArrayEquals(COMB_4_0, array(combination(4, 0)));
+        assertArrayEquals(COMB_4_1, array(combination(4, 1)));
+        assertArrayEquals(COMB_4_2, array(combination(4, 2)));
+        assertArrayEquals(COMB_4_3, array(combination(4, 3)));
+        assertArrayEquals(COMB_4_4, array(combination(4, 4)));
+        assertArrayEquals(COMB_4_5, array(combination(4, 5)));
+    }
+
 }

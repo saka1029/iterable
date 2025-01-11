@@ -37,22 +37,15 @@ public class TestSyncHolder {
                 throw new RuntimeException(e);
             }
         }
-        public static void join(Thread thread) {
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
     }
 
     public static Iterable<int[]> permutation(int n, int k) {
         return () -> new Iterator<>() {
             int[] selected = new int[k];
             boolean[] used = new boolean[n];
-            SyncHolder<int[]> holder = new SyncHolder();
+            SyncHolder<int[]> holder = new SyncHolder<>();
             int[] received = null;
-            { Thread.ofPlatform().start(() -> { solve(0); holder.set(null); }); }
+            { Thread.ofVirtual().start(() -> { solve(0); holder.set(null); }); }
 
             private void solve(int i) {
                 if (i >= k)

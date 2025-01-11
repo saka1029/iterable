@@ -114,8 +114,4 @@ public class TestSyncVar {
         assertArrayEquals(PERM_4_3, array(permutation(4, 3)));
         assertArrayEquals(PERM_4_4, array(permutation(4, 4)));
     }
-
-    @Test
-    public void testCloneable() {
-    }
 }
