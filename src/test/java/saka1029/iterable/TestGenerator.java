@@ -9,9 +9,9 @@ public class TestGenerator {
     @Test
     public void testGenerator() {
         Generator<Integer> g = new Generator<>(q -> {
-            q.yields(1);
-            q.yields(0);
-            q.yields(3);
+            q.yield(1);
+            q.yield(0);
+            q.yield(3);
         });
         assertEquals(listOf(1, 0, 3), list(g));
         assertEquals(listOf(1, 0, 3), list(g));
@@ -22,7 +22,7 @@ public class TestGenerator {
         Generator<Integer> fibonacci = new Generator<>(g -> {
             int a = 0, b = 1;
             while (true) {
-                g.yields(a);
+                g.yield(a);
                 int c = a + b;
                 a = b;
                 b = c;

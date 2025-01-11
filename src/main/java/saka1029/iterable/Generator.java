@@ -14,7 +14,7 @@ public class Generator<T> implements Iterable<T> {
     public Generator(Consumer<Generator<T>> generator) {
         this.runnable = () -> {
             generator.accept(this);
-            yields(null);
+            this.yield(null);
         };
     }
 
@@ -22,7 +22,7 @@ public class Generator<T> implements Iterable<T> {
         return new Generator<>(generator);
     }
 
-    public synchronized void yields(T newValue) {
+    public synchronized void yield(T newValue) {
         while (que.size() >= capacity)
             try {
                 wait();
