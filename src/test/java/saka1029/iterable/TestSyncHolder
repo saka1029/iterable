@@ -3,49 +3,46 @@ package saka1029.iterable;
 import static org.junit.Assert.assertArrayEquals;
 import static saka1029.iterable.Iterables.*;
 import static saka1029.iterable.TestPermutation.*;
-import java.util.Deque;
 import java.util.Iterator;
-import java.util.LinkedList;
 import org.junit.Test;
 
-public class TestQue {
+public class TestSyncHolder {
 
-    public static class Que<T> {
+    public static class SyncHolder<T> {
 
-        final int capacity;
-        final Deque<T> que = new LinkedList<>();
+        T value = null;
+        boolean filled = false;
 
-        public Que(int capacity) {
-            this.capacity = capacity;
-        }
-
-        public synchronized void add(T newValue) {
+        public synchronized void set(T newValue) {
             try {
-                while (que.size() >= capacity)
+                while (filled)
                     wait();
-                // System.out.println("add: size=" + que.size());
-                que.add(newValue);
+                value = newValue;
+                filled = true;
                 notify();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }
 
-        public synchronized T remove() {
+        public synchronized T get() {
             try {
-                while (que.size() <= 0)
+                while (!filled)
                     wait();
-                // System.out.println("remove: size=" + que.size());
-                T result = que.remove();
+                T result = value;
+                filled = false;
                 notify();
                 return result;
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }
-
-        public static Thread start(Runnable runnable) {
-            return Thread.ofVirtual().start(runnable);
+        public static void join(Thread thread) {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -53,18 +50,13 @@ public class TestQue {
         return () -> new Iterator<>() {
             int[] selected = new int[k];
             boolean[] used = new boolean[n];
-            Que<int[]> que = new Que<>(1);
+            SyncHolder<int[]> holder = new SyncHolder();
             int[] received = null;
-            {
-                Que.start(() -> {
-                    solve(0);
-                    que.add(null);
-                });
-            }
+            { Thread.ofPlatform().start(() -> { solve(0); holder.set(null); }); }
 
             private void solve(int i) {
                 if (i >= k)
-                    que.add(selected.clone());
+                    holder.set(selected.clone());
                 else
                     for (int j = 0; j < n; ++j)
                         if (!used[j]) {
@@ -78,7 +70,7 @@ public class TestQue {
             boolean hasNext = advance();
 
             private boolean advance() {
-                return (received = que.remove()) != null;
+                return (received = holder.get()) != null;
             }
 
             @Override
