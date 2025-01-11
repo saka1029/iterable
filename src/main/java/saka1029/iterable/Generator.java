@@ -67,10 +67,4 @@ public class Generator<T> implements Iterable<T> {
             }
         };
     }
-
-    public static Thread start(Runnable runnable) {
-        Thread t = new Thread(runnable);
-        t.start();
-        return t;
-    }
 }
