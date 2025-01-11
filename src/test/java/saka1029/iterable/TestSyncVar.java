@@ -53,7 +53,8 @@ public class TestSyncVar {
             SyncVar syncVar = new SyncVar();
             int[] received = null;
             // Thread thread = Thread.ofVirtual().start(() -> { solve(0); syncVar.set(null); });
-            Thread thread = Thread.ofPlatform().start(() -> { solve(0); syncVar.set(null); });
+            // Thread thread = Thread.ofPlatform().start(() -> { solve(0); syncVar.set(null); });
+            { Thread.ofPlatform().start(() -> { solve(0); syncVar.set(null); }); }
 
             private void solve(int i) {
                 if (i >= k)
@@ -71,12 +72,7 @@ public class TestSyncVar {
             boolean hasNext = advance();
 
             private boolean advance() {
-                received = syncVar.get();
-                if (received == null) {
-                    SyncVar.join(thread);
-                    return false;
-                }
-                return true;
+                return (received = syncVar.get()) != null;
             }
 
             @Override

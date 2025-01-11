@@ -4,7 +4,6 @@ import static org.junit.Assert.assertArrayEquals;
 import static saka1029.iterable.Iterables.*;
 import static saka1029.iterable.TestPermutation.*;
 
-import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -44,12 +43,9 @@ public class TestQue {
                 throw new RuntimeException(e);
             }
         }
-        public static void join(Thread thread) {
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+
+        public static Thread start(Runnable runnable) {
+            return Thread.ofVirtual().start(runnable);
         }
     }
 
@@ -59,8 +55,12 @@ public class TestQue {
             boolean[] used = new boolean[n];
             Que<int[]> que = new Que<>(5);
             int[] received = null;
-            Thread thread = Thread.ofVirtual().start(() -> { solve(0); que.add(null); });
-            // Thread thread = Thread.ofPlatform().start(() -> { solve(0); que.add(null); });
+            {
+                Que.start(() -> {
+                    solve(0);
+                    que.add(null);
+                });
+            }
 
             private void solve(int i) {
                 if (i >= k)
@@ -78,12 +78,7 @@ public class TestQue {
             boolean hasNext = advance();
 
             private boolean advance() {
-                received = que.remove();
-                if (received == null) {
-                    Que.join(thread);
-                    return false;
-                }
-                return true;
+                return (received = que.remove()) != null;
             }
 
             @Override
