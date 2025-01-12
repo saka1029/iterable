@@ -1,6 +1,8 @@
 package saka1029.iterable;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static saka1029.iterable.Iterables.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +71,8 @@ public class TestThread {
                 e.printStackTrace();
             }
         });
-        producer.join(); consumer.join();
+        producer.join();
+        consumer.join();
         assertEquals(list(range(0, 10, 1)), received);
     }
 
@@ -103,6 +106,45 @@ public class TestThread {
         }
         producer.join();
         assertEquals(list(range(0, 10, 1)), received);
+    }
+
+    @Test
+    public void testInterrupt() {
+        Thread t = new Thread(() -> {
+            try {
+                new Object() {
+                    synchronized void func() throws InterruptedException {
+                        try {
+                            wait();
+                        } catch (InterruptedException e) {
+                            // catchした時点ではisInterrupted()はfalse
+                            assertFalse(Thread.currentThread().isInterrupted());
+                            // 再度、割り込みフラグをセットする。
+                            Thread.currentThread().interrupt();
+                            throw e;
+                        }
+                    }
+                }.func();
+                // 自前の割り込みフラグがセットされていたら最終処理はスキップする。
+                if (!Thread.currentThread().isInterrupted()) {
+                    assertTrue(Thread.currentThread().isInterrupted());
+                    System.out.println("final process");
+                }
+            } catch (InterruptedException e) {
+                // catchした時点ではisInterrupted()はtrue
+                assertTrue(Thread.currentThread().isInterrupted());
+            }
+        });
+        t.start();
+        t.interrupt();
+        assertTrue(t.isInterrupted());
+        System.out.println("done");
+        try {
+            assertTrue(t.isInterrupted());
+            t.join();
+        } catch (InterruptedException e) {
+            System.out.println("t interrupted");
+        }
     }
 }
 
