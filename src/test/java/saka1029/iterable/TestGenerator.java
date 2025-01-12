@@ -1,5 +1,7 @@
 package saka1029.iterable;
 
+import static saka1029.iterable.TestPermutation.*;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static saka1029.iterable.Iterables.*;
 import org.junit.Test;
@@ -41,10 +43,57 @@ public class TestGenerator {
         }
     }
 
-    @Test
     public void testFibonacciStatic() {
         Generator<Integer> fibonacci = new Generator<>(TestGenerator::fibonacci);
         assertEquals(listOf(0, 1, 1, 2, 3, 5, 8, 13), list(limit(8, fibonacci)));
         assertEquals(listOf(0, 1, 1, 2, 3, 5, 8, 13), list(limit(8, new Generator<>(TestGenerator::fibonacci))));
+    }
+
+    static Generator<int[]> permutation(int n, int k) {
+        return new Generator<>(g -> {
+            new Object() {
+                int[] selected = new int[k];
+                boolean[] used = new boolean[n];
+
+                void solve(int i) {
+                    if (i >= k)
+                        g.yield(selected.clone());
+                    else
+                        for (int j = 0; j < n; ++j) {
+                            if (!used[j]) {
+                                used[j] = true;
+                                selected[i] = j;
+                                solve(i + 1);
+                                used[j] = false;
+                            }
+                        }
+                }
+            }.solve(0);
+        });
+    }
+
+    @Test
+    public void testPermutaion() {
+        assertArrayEquals(PERM_0_0, array(permutation(0, 0)));
+        assertArrayEquals(PERM_0_1, array(permutation(0, 1)));
+        assertArrayEquals(PERM_0_2, array(permutation(0, 2)));
+        assertArrayEquals(PERM_0_3, array(permutation(0, 3)));
+        assertArrayEquals(PERM_1_0, array(permutation(1, 0)));
+        assertArrayEquals(PERM_1_1, array(permutation(1, 1)));
+        assertArrayEquals(PERM_1_2, array(permutation(1, 2)));
+        assertArrayEquals(PERM_1_3, array(permutation(1, 3)));
+        assertArrayEquals(PERM_2_0, array(permutation(2, 0)));
+        assertArrayEquals(PERM_2_1, array(permutation(2, 1)));
+        assertArrayEquals(PERM_2_2, array(permutation(2, 2)));
+        assertArrayEquals(PERM_2_3, array(permutation(2, 3)));
+        assertArrayEquals(PERM_3_0, array(permutation(3, 0)));
+        assertArrayEquals(PERM_3_1, array(permutation(3, 1)));
+        assertArrayEquals(PERM_3_2, array(permutation(3, 2)));
+        assertArrayEquals(PERM_3_3, array(permutation(3, 3)));
+        assertArrayEquals(PERM_4_0, array(permutation(4, 0)));
+        assertArrayEquals(PERM_4_1, array(permutation(4, 1)));
+        assertArrayEquals(PERM_4_2, array(permutation(4, 2)));
+        assertArrayEquals(PERM_4_3, array(permutation(4, 3)));
+        assertArrayEquals(PERM_4_4, array(permutation(4, 4)));
     }
 }
