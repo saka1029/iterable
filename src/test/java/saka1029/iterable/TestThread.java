@@ -126,8 +126,8 @@ public class TestThread {
                     }
                 }.func();
                 // 自前の割り込みフラグがセットされていたら最終処理はスキップする。
+                assertTrue(Thread.currentThread().isInterrupted());
                 if (!Thread.currentThread().isInterrupted()) {
-                    assertTrue(Thread.currentThread().isInterrupted());
                     System.out.println("final process");
                 }
             } catch (InterruptedException e) {
