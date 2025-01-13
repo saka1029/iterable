@@ -1,11 +1,15 @@
 package saka1029.iterable;
 
-import java.util.AbstractList;
+import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import org.junit.Test;
 
 public class TestCIterableGenerator {
 
@@ -16,6 +20,8 @@ public class TestCIterableGenerator {
     interface CIterable<T> extends Iterable<T> {
         CIterator<T> iterator();
     }
+
+    // creator
 
     static class Generator<T> implements CIterable<T> {
 
@@ -41,6 +47,7 @@ public class TestCIterableGenerator {
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
+                System.out.println("Generator: Thread end");
             };
         }
 
@@ -98,6 +105,16 @@ public class TestCIterableGenerator {
 
     static class CArrayList<T> extends ArrayList<T> implements CIterable<T> {
 
+        public CArrayList() {
+        }
+
+        @SuppressWarnings("unchecked")
+        public CArrayList(T... elements) {
+            this();
+            for (T e : elements)
+                add(e);
+        }
+
         @Override
         public CIterator<T> iterator() {
             return new CIterator<>() {
@@ -114,5 +131,90 @@ public class TestCIterableGenerator {
                 }
             };
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> CIterable<T> listOf(T... elements) {
+        return new CArrayList<>(elements);
+    }
+
+    // converter
+
+    public static <T, U> CIterable<U> map(Function<T, U> mapper, CIterable<T> source) {
+        return () -> new CIterator<>() {
+            CIterator<T> iterator = source.iterator();
+
+            @Override
+            public boolean hasNext() {
+                return iterator.hasNext();
+            }
+
+            @Override
+            public U next() {
+                return mapper.apply(iterator.next());
+            }
+
+            @Override
+            public void close() {
+                iterator.close();
+            }
+        };
+    }
+
+    public static <T> CIterable<T> filter(Predicate<T> predicate, CIterable<T> source) {
+        return () -> new CIterator<>() {
+
+            final CIterator<T> iterator = source.iterator();
+            T next;
+            boolean hasNext = advance();
+
+            private boolean advance() {
+                while (iterator.hasNext())
+                    if (predicate.test(next = iterator.next()))
+                        return true;
+                return false;
+            }
+
+            @Override
+            public boolean hasNext() {
+                return hasNext;
+            }
+
+            @Override
+            public T next() {
+                T result = next;
+                hasNext = advance();
+                return result;
+            }
+
+            @Override
+            public void close() {
+                iterator.close();
+            }
+        };
+    }
+
+    // terminator
+
+    public static <T> List<T> list(CIterable<T> source) {
+        CArrayList<T> list = new CArrayList<>();
+        for (T e : source)
+            list.add(e);
+        return list;
+    }
+
+    @Test
+    public void testListOf() {
+        assertEquals(List.of(2, 3, 4), listOf(2, 3, 4));
+    }
+
+    @Test
+    public void testMap() {
+        assertEquals(List.of(20, 30, 40), list(map(e -> e * 10, listOf(2, 3, 4))));
+    }
+
+    @Test
+    public void testFilter() {
+        assertEquals(List.of(1, 3, 5), list(filter(e -> e % 2 != 0, listOf(0, 1, 2, 3, 4, 5))));
     }
 }
