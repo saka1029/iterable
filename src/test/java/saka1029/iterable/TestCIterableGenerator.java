@@ -40,6 +40,7 @@ public class TestCIterableGenerator {
         }
 
         public synchronized void yield(T newValue) {
+            logger.info("Generator: yield enter");
             while (que.size() >= capacity)
                 try {
                     wait();
@@ -319,6 +320,7 @@ public class TestCIterableGenerator {
                     generate((Generator<Integer> g) -> {
                         int a = 0, b = 1;
                         while (true) {
+                            logger.info("fibonacci: yield " + a);
                             g.yield(a);
                             int c = a + b;
                             a = b;
