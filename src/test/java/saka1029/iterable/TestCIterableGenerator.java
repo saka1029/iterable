@@ -291,4 +291,18 @@ public class TestCIterableGenerator {
                                 g.yield(6);
                             }))))));
     }
+
+    @Test
+    public void testLimitGenerateLoop() {
+        logger.info("*** " + Common.methodName());
+        assertEquals(List.of(1, 11, 21),
+            list(
+                limit(3,
+                    map(e -> e + 1,
+                        map(e -> e * 10,
+                            generate((Generator<Integer> g) -> {
+                                for (int i = 0; i < 10; ++i)
+                                    g.yield(i);
+                            }))))));
+    }
 }
