@@ -9,9 +9,13 @@ import java.util.Queue;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.logging.Logger;
 import org.junit.Test;
+import saka1029.Common;
 
 public class TestCIterableGenerator {
+
+    static final Logger logger = Common.logger(TestCIterableGenerator.class);
 
     interface CIterator<T> extends Iterator<T> {
         default void close() {}
@@ -47,7 +51,7 @@ public class TestCIterableGenerator {
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
-                System.out.println("Generator: Thread end");
+                logger.info("Generator: thread end");
             };
         }
 
@@ -56,6 +60,7 @@ public class TestCIterableGenerator {
                 try {
                     wait();
                 } catch (InterruptedException e) {
+                    logger.info("Generator: yield inerrupted");
                     Thread.currentThread().interrupt();
                     throw e;
                 }
@@ -96,6 +101,7 @@ public class TestCIterableGenerator {
 
                 @Override
                 public void close() {
+                    logger.info("Generator: close inerrupt");
                     coroutine.interrupt();
                     next = null;
                 }
@@ -156,6 +162,7 @@ public class TestCIterableGenerator {
 
             @Override
             public void close() {
+                logger.info("map: closed called");
                 iterator.close();
             }
         };
@@ -189,6 +196,7 @@ public class TestCIterableGenerator {
 
             @Override
             public void close() {
+                logger.info("filter: closed called");
                 iterator.close();
             }
         };
@@ -205,16 +213,19 @@ public class TestCIterableGenerator {
 
     @Test
     public void testListOf() {
+        logger.info("*** " + Common.methodName());
         assertEquals(List.of(2, 3, 4), listOf(2, 3, 4));
     }
 
     @Test
     public void testMap() {
+        logger.info("*** " + Common.methodName());
         assertEquals(List.of(20, 30, 40), list(map(e -> e * 10, listOf(2, 3, 4))));
     }
 
     @Test
     public void testFilter() {
+        logger.info("*** " + Common.methodName());
         assertEquals(List.of(1, 3, 5), list(filter(e -> e % 2 != 0, listOf(0, 1, 2, 3, 4, 5))));
     }
 }
