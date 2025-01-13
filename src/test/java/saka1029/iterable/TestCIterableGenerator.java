@@ -1,5 +1,7 @@
 package saka1029.iterable;
 
+import java.util.AbstractList;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -89,6 +91,26 @@ public class TestCIterableGenerator {
                 public void close() {
                     coroutine.interrupt();
                     next = null;
+                }
+            };
+        }
+    }
+
+    static class CArrayList<T> extends ArrayList<T> implements CIterable<T> {
+
+        @Override
+        public CIterator<T> iterator() {
+            return new CIterator<>() {
+                int index = 0;
+
+                @Override
+                public boolean hasNext() {
+                    return index < size();
+                }
+
+                @Override
+                public T next() {
+                    return get(index++);
                 }
             };
         }
