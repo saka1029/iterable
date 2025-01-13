@@ -290,6 +290,9 @@ public class TestCIterableGenerator {
                                 g.yield(4);
                                 g.yield(5);
                                 g.yield(6);
+                                g.yield(7);
+                                g.yield(8);
+                                g.yield(9);
                             }))))));
     }
 
