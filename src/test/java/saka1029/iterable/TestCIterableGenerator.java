@@ -27,7 +27,7 @@ public class TestCIterableGenerator {
 
     static class Generator<T> implements CIterable<T> {
 
-        final int capacity = 8;
+        final int capacity = 4;
         final Queue<T> que = new LinkedList<>();
         final Runnable runnable;
 
@@ -48,6 +48,7 @@ public class TestCIterableGenerator {
                     logger.info("Generator: yield inerrupted");
                     Thread.currentThread().interrupt();
                 }
+            logger.info("Generator: yield(%s)".formatted(newValue));
             que.add(newValue);
             notify();
         }
@@ -60,6 +61,7 @@ public class TestCIterableGenerator {
                     throw new RuntimeException(e);
                 }
             T result = que.remove();
+            logger.info("Generator: take(%s)".formatted(result));
             notify();
             return result;
         }
@@ -301,8 +303,25 @@ public class TestCIterableGenerator {
                     map(e -> e + 1,
                         map(e -> e * 10,
                             generate((Generator<Integer> g) -> {
-                                for (int i = 0; i < 10; ++i)
+                                for (int i = 0; i < 100; ++i)
                                     g.yield(i);
                             }))))));
+    }
+
+    @Test
+    public void testLimitFibonacci() {
+        logger.info("*** " + Common.methodName());
+        assertEquals(List.of(0, 1, 1, 2, 3, 5),
+            list(
+                limit(6,
+                    generate((Generator<Integer> g) -> {
+                        int a = 0, b = 1;
+                        while (true) {
+                            g.yield(a);
+                            int c = a + b;
+                            a = b;
+                            b = c;
+                        }
+                    }))));
     }
 }

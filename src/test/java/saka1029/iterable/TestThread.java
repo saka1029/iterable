@@ -146,5 +146,18 @@ public class TestThread {
             System.out.println("t interrupted");
         }
     }
+
+    @Test
+    public void testThreadLocal() {
+        ThreadLocal<Integer> threadLocal = new ThreadLocal<>();
+        for (int i = 0; i < 3; ++i) {
+            int number = i;
+            Thread t = new Thread(() -> {
+                threadLocal.set(number);
+                System.out.println(Thread.currentThread().getName() + " after : " + threadLocal.get());
+            });
+            t.start();
+        }
+    }
 }
 
