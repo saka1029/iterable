@@ -25,8 +25,6 @@ public class TestCIterableGenerator {
         CIterator<T> iterator();
     }
 
-    // creator
-
     static class Generator<T> implements CIterable<T> {
 
         // static class Holder<T> {
@@ -139,6 +137,12 @@ public class TestCIterableGenerator {
         }
     }
 
+    // creator
+
+    public static <T> Generator<T> generate(Consumer<Generator<T>> generator) {
+        return new Generator<>(generator);
+    }
+
     @SuppressWarnings("unchecked")
     public static <T> CIterable<T> listOf(T... elements) {
         return new CArrayList<>(elements);
@@ -209,6 +213,19 @@ public class TestCIterableGenerator {
         for (T e : source)
             list.add(e);
         return list;
+    }
+
+    @Test
+    public void testGenerate() {
+        assertEquals(List.of(0, 1, 2),
+            list(generate(g -> {
+                try {
+                    g.yield(0);
+                    g.yield(1);
+                    g.yield(2);
+                } catch (InterruptedException e) {
+                }
+            })));
     }
 
     @Test
