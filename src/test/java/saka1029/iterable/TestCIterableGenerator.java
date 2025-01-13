@@ -27,15 +27,6 @@ public class TestCIterableGenerator {
 
     static class Generator<T> implements CIterable<T> {
 
-        // static class Holder<T> {
-        //     final T value;
-        //     final boolean filled;
-        //     Holder(T value, boolean filled) {
-        //         this.value = value;
-        //         this.filled = filled;
-        //     }
-        // }
-
         final int capacity = 8;
         final Queue<T> que = new LinkedList<>();
         final Runnable runnable;
@@ -44,23 +35,18 @@ public class TestCIterableGenerator {
             this.runnable = () -> {
                 generator.accept(this);
                 if (!Thread.currentThread().isInterrupted())
-                    try {
-                        this.yield(null);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
+                    this.yield(null);
                 logger.info("Generator: thread end");
             };
         }
 
-        public synchronized void yield(T newValue) throws InterruptedException {
+        public synchronized void yield(T newValue) {
             while (que.size() >= capacity)
                 try {
                     wait();
                 } catch (InterruptedException e) {
                     logger.info("Generator: yield inerrupted");
                     Thread.currentThread().interrupt();
-                    throw e;
                 }
             que.add(newValue);
             notify();
@@ -99,7 +85,7 @@ public class TestCIterableGenerator {
 
                 @Override
                 public void close() {
-                    logger.info("Generator: close inerrupt");
+                    logger.info("Generator: close");
                     coroutine.interrupt();
                     next = null;
                 }
@@ -166,7 +152,7 @@ public class TestCIterableGenerator {
 
             @Override
             public void close() {
-                logger.info("map: closed called");
+                logger.info("map: close");
                 iterator.close();
             }
         };
@@ -200,7 +186,34 @@ public class TestCIterableGenerator {
 
             @Override
             public void close() {
-                logger.info("filter: closed called");
+                logger.info("filter: close");
+                iterator.close();
+            }
+        };
+    }
+
+    public static <T> CIterable<T> limit(int size, CIterable<T> source) {
+        return () -> new CIterator<>() {
+            CIterator<T> iterator = source.iterator();
+            int count = 0;
+
+            @Override
+            public boolean hasNext() {
+                if (iterator.hasNext() && count < size)
+                    return true;
+                close();
+                return false;
+            }
+
+            @Override
+            public T next() {
+                ++count;
+                return iterator.next();
+            }
+
+            @Override
+            public void close() {
+                logger.info("limit: close");
                 iterator.close();
             }
         };
@@ -219,12 +232,9 @@ public class TestCIterableGenerator {
     public void testGenerate() {
         assertEquals(List.of(0, 1, 2),
             list(generate(g -> {
-                try {
-                    g.yield(0);
-                    g.yield(1);
-                    g.yield(2);
-                } catch (InterruptedException e) {
-                }
+                g.yield(0);
+                g.yield(1);
+                g.yield(2);
             })));
     }
 
@@ -244,5 +254,41 @@ public class TestCIterableGenerator {
     public void testFilter() {
         logger.info("*** " + Common.methodName());
         assertEquals(List.of(1, 3, 5), list(filter(e -> e % 2 != 0, listOf(0, 1, 2, 3, 4, 5))));
+    }
+
+    @Test
+    public void testLimit() {
+        logger.info("*** " + Common.methodName());
+        assertEquals(List.of(0, 1, 2), list(limit(3, listOf(0, 1, 2, 3, 4, 5))));
+    }
+
+    @Test
+    public void testLimitMap() {
+        logger.info("*** " + Common.methodName());
+        assertEquals(List.of(1, 11, 21),
+            list(
+                limit(3,
+                    map(e -> e + 1,
+                        map(e -> e * 10,
+                            listOf(0, 1, 2, 3, 4, 5))))));
+    }
+
+    @Test
+    public void testLimitGenerate() {
+        logger.info("*** " + Common.methodName());
+        assertEquals(List.of(1, 11, 21),
+            list(
+                limit(3,
+                    map(e -> e + 1,
+                        map(e -> e * 10,
+                            generate((Generator<Integer> g) -> {
+                                g.yield(0);
+                                g.yield(1);
+                                g.yield(2);
+                                g.yield(3);
+                                g.yield(4);
+                                g.yield(5);
+                                g.yield(6);
+                            }))))));
     }
 }
