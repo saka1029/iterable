@@ -154,7 +154,7 @@ public class TestThread {
             int number = i;
             Thread t = new Thread(() -> {
                 threadLocal.set(number);
-                System.out.println(Thread.currentThread().getName() + " after : " + threadLocal.get());
+                System.out.println(Thread.currentThread().getName() + " : " + threadLocal.get());
             });
             t.start();
         }

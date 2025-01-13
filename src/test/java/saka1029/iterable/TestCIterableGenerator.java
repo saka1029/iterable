@@ -34,8 +34,7 @@ public class TestCIterableGenerator {
         public Generator(Consumer<Generator<T>> generator) {
             this.runnable = () -> {
                 generator.accept(this);
-                if (!Thread.currentThread().isInterrupted())
-                    this.yield(null);
+                this.yield(null);
                 logger.info("Generator: thread end");
             };
         }
@@ -46,7 +45,7 @@ public class TestCIterableGenerator {
                     wait();
                 } catch (InterruptedException e) {
                     logger.info("Generator: yield inerrupted");
-                    Thread.currentThread().interrupt();
+                    return;
                 }
             logger.info("Generator: yield(%s)".formatted(newValue));
             que.add(newValue);
