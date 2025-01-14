@@ -17,7 +17,7 @@ public class TestCIterableGenerator {
     static final Logger logger = Common.logger(TestCIterableGenerator.class);
 
     interface CIterator<T> extends Iterator<T> {
-        default void close() {}
+        default void stop() {}
     }
 
     interface CIterable<T> extends Iterable<T> {
@@ -30,14 +30,14 @@ public class TestCIterableGenerator {
 
     static class Generator<T> implements CIterable<T> {
 
-        final int capacity = 4;
+        final int capacity = 1;
         final Queue<T> que = new LinkedList<>();
         final Runnable runnable;
 
-        public Generator(GeneratorBody<T> generator) {
+        public Generator(GeneratorBody<T> body) {
             this.runnable = () -> {
                 try {
-                    generator.accept(this);
+                    body.accept(this);
                     this.yield(null);
                 } catch (InterruptedException e) {
                     logger.info("Generator: runnable interrupted");
@@ -88,7 +88,7 @@ public class TestCIterableGenerator {
                 }
 
                 @Override
-                public void close() {
+                public void stop() {
                     logger.info("Generator: close");
                     coroutine.interrupt();
                     next = null;
@@ -155,9 +155,9 @@ public class TestCIterableGenerator {
             }
 
             @Override
-            public void close() {
+            public void stop() {
                 logger.info("map: close");
-                iterator.close();
+                iterator.stop();
             }
         };
     }
@@ -189,9 +189,9 @@ public class TestCIterableGenerator {
             }
 
             @Override
-            public void close() {
+            public void stop() {
                 logger.info("filter: close");
-                iterator.close();
+                iterator.stop();
             }
         };
     }
@@ -205,7 +205,7 @@ public class TestCIterableGenerator {
             public boolean hasNext() {
                 if (iterator.hasNext() && count < size)
                     return true;
-                close();
+                stop();
                 return false;
             }
 
@@ -216,9 +216,9 @@ public class TestCIterableGenerator {
             }
 
             @Override
-            public void close() {
+            public void stop() {
                 logger.info("limit: close");
-                iterator.close();
+                iterator.stop();
             }
         };
     }
