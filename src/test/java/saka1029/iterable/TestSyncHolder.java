@@ -48,10 +48,10 @@ public class TestSyncHolder {
             SyncHolder<int[]> holder = new SyncHolder<>();
             int[] received = null;
             {
-                Thread.ofVirtual().start(() -> {
+                new Thread(() -> {
                     solve(0);
                     holder.set(null);
-                });
+                }).start();
             }
 
             private void solve(int i) {

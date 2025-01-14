@@ -44,7 +44,7 @@ public class TestThread {
     @Test
     public void testProducerConsumerTwoThread() throws InterruptedException {
         Holder<Integer> holder = new Holder<>(Status.EMPTY, -1);
-        Thread producer = Thread.ofVirtual().start(() -> {
+        Thread producer = new Thread(() -> {
             try {
                 for (int i = 0; i < 10; ++i) {
                     System.out.println("producer: send " + i);
@@ -56,8 +56,9 @@ public class TestThread {
                 e.printStackTrace();
             }
         });
+        producer.start();
         List<Integer> received = new ArrayList<>();
-        Thread consumer = Thread.ofVirtual().start(() -> {
+        Thread consumer = new Thread(() -> {
             try {
                 while (true) {
                     Integer receive = holder.receive();
@@ -71,6 +72,7 @@ public class TestThread {
                 e.printStackTrace();
             }
         });
+        consumer.start();
         producer.join();
         consumer.join();
         assertEquals(list(range(0, 10, 1)), received);
@@ -79,7 +81,7 @@ public class TestThread {
     @Test
     public void testProducerConsumerOneThread() throws InterruptedException {
         Holder<Integer> holder = new Holder<>(Status.EMPTY, -1);
-        Thread producer = Thread.ofVirtual().start(() -> {
+        Thread producer = new Thread(() -> {
             try {
                 for (int i = 0; i < 10; ++i) {
                     System.out.println("producer: send " + i);
@@ -91,6 +93,7 @@ public class TestThread {
                 e.printStackTrace();
             }
         });
+        producer.start();
         List<Integer> received = new ArrayList<>();
         try {
             while (true) {

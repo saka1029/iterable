@@ -100,7 +100,7 @@ public class TestSyncQue {
             int[] selected = new int[k];
             SyncQue<int[]> syncQue = new SyncQue<>(5);
             {
-                Thread.ofVirtual().start(() -> { solve(0, 0); syncQue.add(null); });
+                new Thread(() -> { solve(0, 0); syncQue.add(null); }).start();
             }
 
             private void solve(int i, int j) {
