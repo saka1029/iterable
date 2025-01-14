@@ -1,15 +1,20 @@
 package saka1029.iterable;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.IntFunction;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
 import org.junit.Test;
@@ -25,6 +30,9 @@ public class TestCIterableGenerator {
 
     interface CIterable<T> extends Iterable<T> {
         CIterator<T> iterator();
+    }
+
+    interface CList<T> extends List<T>, CIterable<T> {
     }
 
     interface GeneratorBody<T> {
@@ -102,7 +110,7 @@ public class TestCIterableGenerator {
         }
     }
 
-    static class CArrayList<T> extends ArrayList<T> implements CIterable<T> {
+    static class CArrayList<T> extends ArrayList<T> implements CList<T> {
 
         public CArrayList() {
         }
@@ -252,13 +260,61 @@ public class TestCIterableGenerator {
         };
     }
 
+    public static <T> CIterable<T> sort(Comparator<T> comparator, CIterable<T> source) {
+        CList<T> list = list(source);
+        Collections.sort(list, comparator);
+        return list;
+    }
+
+    public static <T extends Comparable<T>> CIterable<T> sort(CIterable<T> source) {
+        return sort(Comparator.naturalOrder(), source);
+    }
+
+    public static <T> CIterable<T> reverse(CIterable<T> source) {
+        CList<T> list = list(source);
+        Collections.reverse(list);
+        return list;
+    }
+
+    public static <T, U, V> CIterable<V> zip(BiFunction<T, U, V> mapper,
+            CIterable<T> s1, CIterable<U> s2) {
+        return () -> new CIterator<>() {
+            CIterator<T> i1 = s1.iterator();
+            CIterator<U> i2 = s2.iterator();
+
+            @Override
+            public boolean hasNext() {
+                if (i1.hasNext() && i2.hasNext())
+                    return true;
+                stop();
+                return false;
+            }
+
+            @Override
+            public V next() {
+                return mapper.apply(i1.next(), i2.next());
+            }
+
+            @Override
+            public void stop() {
+                i1.stop();
+                i2.stop();
+            }
+        };
+    }
+
     // terminator
 
-    public static <T> List<T> list(CIterable<T> source) {
-        CArrayList<T> list = new CArrayList<>();
+    public static <T> CList<T> list(CIterable<T> source) {
+        CList<T> list = new CArrayList<>();
         for (T e : source)
             list.add(e);
         return list;
+    }
+
+    public static <T> T[] array(IntFunction<T[]> constructor, CIterable<T> source) {
+        CList<T> list = list(source);
+        return list.toArray(constructor);
     }
 
     public static <T> boolean allMatch(Predicate<T> predicate, CIterable<T> source) {
@@ -394,5 +450,25 @@ public class TestCIterableGenerator {
         assertTrue(anyMatch(i -> i % 3 == 0, listOf(0, 1, 2, 3)));
         assertTrue(anyMatch(i -> i % 3 == 0, listOf(0, 3, 6, 9)));
         assertFalse(anyMatch(i -> i % 3 == 0, listOf(1, 4, 7, 10)));
+    }
+
+    @Test
+    public void testSort() {
+        logger.info("*** " + Common.methodName());
+        assertEquals(listOf(0, 1, 2, 3, 4), sort(Comparator.naturalOrder(), listOf(2, 3, 1, 4, 0)));
+        assertEquals(listOf(4, 3, 2, 1, 0), sort(Comparator.reverseOrder(), listOf(2, 3, 1, 4, 0)));
+        assertEquals(listOf(0, 1, 2, 3, 4), sort(Comparator.comparing(Function.identity()), listOf(2, 3, 1, 4, 0)));
+        assertEquals(listOf(0, 1, 2, 3, 4), sort(Integer::compare, listOf(2, 3, 1, 4, 0)));
+        assertEquals(listOf(0, 1, 2, 3, 4), sort(listOf(2, 3, 1, 4, 0)));
+    }
+
+    @Test
+    public void testReverse() {
+        assertEquals(listOf(0, 4, 1, 3, 2), reverse(listOf(2, 3, 1, 4, 0)));
+    }
+
+    @Test
+    public void testArray() {
+        assertArrayEquals(new Integer[] {0, 1, 2}, array(Integer[]::new, listOf(0, 1, 2)));
     }
 }
