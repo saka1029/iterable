@@ -30,7 +30,7 @@ public class TestCIterableGenerator {
 
     static class Generator<T> implements CIterable<T> {
 
-        final int capacity = 1;
+        final int capacity = 10;
         final Queue<T> que = new LinkedList<>();
         final Runnable runnable;
 
@@ -40,17 +40,19 @@ public class TestCIterableGenerator {
                     body.accept(this);
                     this.yield(null);
                 } catch (InterruptedException e) {
-                    logger.info("Generator: runnable interrupted");
+                    logger.info("Generator.runnable: interrupted");
                 }
-                logger.info("Generator: runnable end");
+                logger.info("Generator.runnable: end");
             };
         }
 
         public synchronized void yield(T newValue) throws InterruptedException {
-            logger.info("Generator: yield enter");
+            logger.info("Generator.yield enter " + newValue);
+            if (Thread.currentThread().isInterrupted())
+                throw new InterruptedException("Generator.yield: interruped");
             while (que.size() >= capacity)
                 wait();
-            logger.info("Generator: yield(%s)".formatted(newValue));
+            logger.info("Generator.yield add " + newValue);
             que.add(newValue);
             notify();
         }
@@ -63,7 +65,7 @@ public class TestCIterableGenerator {
                     throw new RuntimeException(e);
                 }
             T result = que.remove();
-            logger.info("Generator: take(%s)".formatted(result));
+            logger.info("Generator.take remove " + result);
             notify();
             return result;
         }
@@ -89,7 +91,7 @@ public class TestCIterableGenerator {
 
                 @Override
                 public void stop() {
-                    logger.info("Generator: close");
+                    logger.info("Generator.stop");
                     coroutine.interrupt();
                     next = null;
                 }
@@ -156,7 +158,7 @@ public class TestCIterableGenerator {
 
             @Override
             public void stop() {
-                logger.info("map: close");
+                logger.info("map: stop");
                 iterator.stop();
             }
         };
@@ -190,7 +192,7 @@ public class TestCIterableGenerator {
 
             @Override
             public void stop() {
-                logger.info("filter: close");
+                logger.info("filter: stop");
                 iterator.stop();
             }
         };
@@ -217,7 +219,7 @@ public class TestCIterableGenerator {
 
             @Override
             public void stop() {
-                logger.info("limit: close");
+                logger.info("limit: stop");
                 iterator.stop();
             }
         };
