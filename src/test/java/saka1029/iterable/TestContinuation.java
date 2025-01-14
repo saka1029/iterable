@@ -1,5 +1,7 @@
 package saka1029.iterable;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import java.io.Closeable;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
@@ -110,7 +112,12 @@ public class TestContinuation {
                 coroutine.yield(3);
             });
             logger.info("take: " + coroutine.take());
-            logger.info("take: " + coroutine.take());
+            try {
+                logger.info("take: " + coroutine.take());
+                fail();
+            } catch (NoSuchElementException e) {
+                assertEquals("No yield element", e.getMessage());
+            }
         }
     }
 }
