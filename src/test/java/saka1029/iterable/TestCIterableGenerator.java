@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
@@ -25,29 +24,32 @@ public class TestCIterableGenerator {
         CIterator<T> iterator();
     }
 
+    interface GeneratorBody<T> {
+        void accept(Generator<T> body) throws InterruptedException;
+    }
+
     static class Generator<T> implements CIterable<T> {
 
         final int capacity = 4;
         final Queue<T> que = new LinkedList<>();
         final Runnable runnable;
 
-        public Generator(Consumer<Generator<T>> generator) {
+        public Generator(GeneratorBody<T> generator) {
             this.runnable = () -> {
-                generator.accept(this);
-                this.yield(null);
-                logger.info("Generator: thread end");
+                try {
+                    generator.accept(this);
+                    this.yield(null);
+                } catch (InterruptedException e) {
+                    logger.info("Generator: runnable interrupted");
+                }
+                logger.info("Generator: runnable end");
             };
         }
 
-        public synchronized void yield(T newValue) {
+        public synchronized void yield(T newValue) throws InterruptedException {
             logger.info("Generator: yield enter");
             while (que.size() >= capacity)
-                try {
-                    wait();
-                } catch (InterruptedException e) {
-                    logger.info("Generator: yield inerrupted");
-                    return;
-                }
+                wait();
             logger.info("Generator: yield(%s)".formatted(newValue));
             que.add(newValue);
             notify();
@@ -127,7 +129,7 @@ public class TestCIterableGenerator {
 
     // creator
 
-    public static <T> Generator<T> generate(Consumer<Generator<T>> generator) {
+    public static <T> Generator<T> generate(GeneratorBody<T> generator) {
         return new Generator<>(generator);
     }
 
