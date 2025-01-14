@@ -1,6 +1,9 @@
 package saka1029.iterable;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -17,7 +20,7 @@ public class TestCIterableGenerator {
     static final Logger logger = Common.logger(TestCIterableGenerator.class);
 
     interface CIterator<T> extends Iterator<T> {
-        default void stop() {}
+        void stop();
     }
 
     interface CIterable<T> extends Iterable<T> {
@@ -125,6 +128,10 @@ public class TestCIterableGenerator {
                 public T next() {
                     return get(index++);
                 }
+
+                @Override
+                public void stop() {
+                }
             };
         }
     }
@@ -138,6 +145,26 @@ public class TestCIterableGenerator {
     @SuppressWarnings("unchecked")
     public static <T> CIterable<T> listOf(T... elements) {
         return new CArrayList<>(elements);
+    }
+
+    public static <T> CIterable<T> iterable(Iterable<T> source) {
+        return () -> new CIterator<>() {
+            Iterator<T> iterator = source.iterator();
+
+            @Override
+            public boolean hasNext() {
+                return iterator.hasNext();
+            }
+
+            @Override
+            public T next() {
+                return iterator.next();
+            }
+
+            @Override
+            public void stop() {
+            }
+        };
     }
 
     // converter
@@ -232,6 +259,24 @@ public class TestCIterableGenerator {
         for (T e : source)
             list.add(e);
         return list;
+    }
+
+    public static <T> boolean allMatch(Predicate<T> predicate, CIterable<T> source) {
+        for (CIterator<T> it = source.iterator(); it.hasNext(); )
+            if (!predicate.test(it.next())) {
+                it.stop();
+                return false;
+            }
+        return true;
+    }
+
+    public static <T> boolean anyMatch(Predicate<T> predicate, CIterable<T> source) {
+        for (CIterator<T> it = source.iterator(); it.hasNext(); )
+            if (predicate.test(it.next())) {
+                it.stop();
+                return true;
+            }
+        return false;
     }
 
     @Test
@@ -331,5 +376,23 @@ public class TestCIterableGenerator {
                             b = c;
                         }
                     }))));
+    }
+
+    @Test
+    public void testAllMatch() {
+        logger.info("*** " + Common.methodName());
+        assertFalse(allMatch(i -> i % 3 == 0, listOf(0, 1, 2, 3)));
+        assertFalse(allMatch(i -> i % 3 == 0, map(i -> i + 1, listOf(0, 1, 2, 3))));
+        assertTrue(allMatch(i -> i % 3 == 0, listOf(0, 3, 6, 9)));
+        assertTrue(allMatch(i -> i % 3 == 0, map(i -> i + 1, listOf(2, 5, 8))));
+        assertFalse(allMatch(i -> i % 3 == 0, map(i -> i + 1, listOf(0, 3, 6, 9))));
+    }
+
+    @Test
+    public void testAnyMatch() {
+        logger.info("*** " + Common.methodName());
+        assertTrue(anyMatch(i -> i % 3 == 0, listOf(0, 1, 2, 3)));
+        assertTrue(anyMatch(i -> i % 3 == 0, listOf(0, 3, 6, 9)));
+        assertFalse(anyMatch(i -> i % 3 == 0, listOf(1, 4, 7, 10)));
     }
 }
