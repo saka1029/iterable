@@ -32,6 +32,7 @@ public class TestCoroutine {
                 } catch (InterruptedException e) {
                     System.out.println("CoroutineRunner: body interrupted");
                 }
+                System.out.println("CoroutineRunner: body end");
             };
             this.queSize = queSize;
             this.thread = new Thread(runnable);
