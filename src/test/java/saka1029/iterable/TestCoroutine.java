@@ -1,14 +1,17 @@
 package saka1029.iterable;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.io.Closeable;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -16,6 +19,20 @@ import java.util.stream.StreamSupport;
 import org.junit.Test;
 
 public class TestCoroutine {
+
+    static String str(Object obj) {
+        if (obj == null)
+            return "null";
+        if (!obj.getClass().isArray())
+            return Objects.toString(obj);
+        StringBuilder sb = new StringBuilder("[");
+        int size = Array.getLength(obj);
+        if (size > 0)
+            sb.append(str(Array.get(obj, 0)));
+        for (int i = 1; i < size; ++i)
+            sb.append(", ").append(str(Array.get(obj, i)));
+        return sb.append("]").toString();
+    }
 
     static class CoroutineContext<T> implements Closeable {
 
@@ -47,32 +64,31 @@ public class TestCoroutine {
         }
 
         public synchronized void yield(T newValue) throws InterruptedException {
-            System.out.println("CoroutineRunner.yield: enter " + newValue);
+            System.out.println("CoroutineRunner.yield: enter " + str(newValue));
             if (thread.isInterrupted())
                 throw new InterruptedException();
             while (que.size() >= queSize)
                 wait();
-            System.out.println("CoroutineRunner.yield: add " + newValue);
+            System.out.println("CoroutineRunner.yield: add " + str(newValue));
             que.add(newValue);
             notify();
         }
 
         private synchronized T take() {
             System.out.println("CoroutineRunner.take: enter isAlive=" + thread.isAlive() + " que.size=" + que.size());
-            if (!thread.isAlive())
+            if (!thread.isAlive()) {
                 if (que.size() <= 0)
                     throw new NoSuchElementException("No yield element");
-                else
-                    return que.remove();
-            while (que.size() <= 0)
-                try {
-                    System.out.println("CoroutineRunner.take: wait ");
-                    wait();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+            } else
+                while (que.size() <= 0)
+                    try {
+                        System.out.println("CoroutineRunner.take: wait ");
+                        wait();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
             T result = que.remove();
-            System.out.println("CoroutineRunner.take: remove " + result);
+            System.out.println("CoroutineRunner.take: remove " + str(result));
             notify();
             return result;
         }
@@ -205,4 +221,30 @@ public class TestCoroutine {
         }
     }
 
+    @Test
+    public void testPermutation() {
+        int n = 3, k = 2;
+        try (Coroutine<int[]> permutation = new Coroutine<>()) {
+            permutation.body(c -> {
+                new Object() {
+                    int[] selected = new int[k];
+                    boolean[] used = new boolean[n];
+                    void solve(int i) throws InterruptedException {
+                        if (i >= k)
+                            c.yield(selected.clone());
+                        else
+                            for (int j = 0; j < n; ++j)
+                                if (!used[j]) {
+                                    used[j] = true;
+                                    selected[i] = j;
+                                    solve(i + 1);
+                                    used[j] = false;
+                                }
+                    }
+                }.solve(0);
+            });
+            assertArrayEquals(new int[][] {{0, 1}, {0, 2}, {1, 0}, {1, 2}, {2, 0}, {2, 1}},
+                permutation.stream().toArray(int[][]::new));
+        }
+    }
 }
