@@ -1,6 +1,7 @@
 package saka1029.iterable;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.io.Closeable;
 import java.util.ArrayList;
@@ -16,13 +17,13 @@ import org.junit.Test;
 
 public class TestCoroutine {
 
-    static class CoroutineRunner<T> implements Closeable {
+    static class CoroutineContext<T> implements Closeable {
 
         final int queSize;
         final Thread thread;
         final Queue<T> que = new LinkedList<>();
 
-        CoroutineRunner(int queSize, CoroutineBody<T> body) {
+        CoroutineContext(int queSize, CoroutineBody<T> body) {
             if (body == null)
                 throw new IllegalArgumentException("body");
             Runnable runnable = () -> {
@@ -45,7 +46,7 @@ public class TestCoroutine {
             thread.interrupt();
         }
 
-        synchronized void yield(T newValue) throws InterruptedException {
+        public synchronized void yield(T newValue) throws InterruptedException {
             System.out.println("CoroutineRunner.yield: enter " + newValue);
             if (thread.isInterrupted())
                 throw new InterruptedException();
@@ -56,12 +57,16 @@ public class TestCoroutine {
             notify();
         }
 
-        synchronized T take() {
-            System.out.println("CoroutineRunner.take: enter ");
-            if (!thread.isAlive() && que.size() <= 0)
-                throw new NoSuchElementException("No yield element");
+        private synchronized T take() {
+            System.out.println("CoroutineRunner.take: enter isAlive=" + thread.isAlive() + " que.size=" + que.size());
+            if (!thread.isAlive())
+                if (que.size() <= 0)
+                    throw new NoSuchElementException("No yield element");
+                else
+                    return que.remove();
             while (que.size() <= 0)
                 try {
+                    System.out.println("CoroutineRunner.take: wait ");
                     wait();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
@@ -74,14 +79,14 @@ public class TestCoroutine {
     }
 
     interface CoroutineBody<T> {
-        void accept(CoroutineRunner<T> coroutine) throws InterruptedException;
+        void accept(CoroutineContext<T> coroutine) throws InterruptedException;
     }
 
     static class Coroutine<T> implements Iterable<T>, Closeable {
 
         int queSize = 4;
         CoroutineBody<T> body = null;
-        List<CoroutineRunner<T>> runners = new ArrayList<>();
+        List<CoroutineContext<T>> runners = new ArrayList<>();
 
         public Coroutine<T> body(CoroutineBody<T> body) {
             this.body = body;
@@ -95,14 +100,14 @@ public class TestCoroutine {
 
         @Override
         public void close() {
-            for (CoroutineRunner<T> e : runners)
+            for (CoroutineContext<T> e : runners)
                 e.close();
         }
 
-        private CoroutineRunner<T> newRunner() {
+        private CoroutineContext<T> context() {
             if (body == null)
                 throw new IllegalStateException("No body.  Call body() first");
-            CoroutineRunner<T> runner =  new CoroutineRunner<>(queSize, body);
+            CoroutineContext<T> runner =  new CoroutineContext<>(queSize, body);
             runners.add(runner);
             return runner;
         }
@@ -110,12 +115,12 @@ public class TestCoroutine {
         @Override
         public Iterator<T> iterator() {
             return new Iterator<>() {
-                CoroutineRunner<T> runner = newRunner();
+                CoroutineContext<T> context = context();
                 T next = null;
                 boolean hasNext = advance();
 
                 private boolean advance() {
-                    return (next = runner.take()) != null;
+                    return (next = context.take()) != null;
                 }
 
                 @Override
@@ -178,6 +183,25 @@ public class TestCoroutine {
                 fibonacci.stream()
                     .limit(7)
                     .toList());
+        }
+    }
+
+    @Test
+    public void testNoSuchElement() {
+        try (Coroutine<Integer> coroutine = new Coroutine<>()) {
+            coroutine.body(c -> {
+                c.yield(0);
+                c.yield(1);
+            });
+            CoroutineContext<Integer> cc = coroutine.context();
+            System.out.println(">>> " + cc.take());
+            System.out.println(">>> " + cc.take());
+            System.out.println(">>> " + cc.take());
+            try {
+                System.out.println(">>> " + cc.take());
+                fail();
+            } catch (NoSuchElementException x) {
+            }
         }
     }
 
