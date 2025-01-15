@@ -1,5 +1,7 @@
 package saka1029.iterable;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -7,6 +9,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Queue;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.junit.Test;
 
@@ -26,7 +30,7 @@ public class TestCoroutine {
                     body.accept(this);
                     this.yield(null);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    System.out.println("CoroutineRunner: body interrupted");
                 }
             };
             this.queSize = queSize;
@@ -126,17 +130,53 @@ public class TestCoroutine {
                 }
             };
         }
+
+        public Stream<T> stream() {
+            return StreamSupport.stream(this.spliterator(), false);
+        }
     }
 
     @Test
-    public void testCoroutine() {
+    public void testIterator() {
         try (Coroutine<Integer> coroutine = new Coroutine<>()) {
             coroutine.body(c -> {
                 c.yield(1);
                 c.yield(2);
             });
+            List<Integer> list = new ArrayList<>();
             for (var i : coroutine)
-                System.out.println(">>> " + i);
+                list.add(i);
+            assertEquals(List.of(1, 2), list);
+        }
+    }
+
+    @Test
+    public void testStream() {
+        try (Coroutine<Integer> coroutine = new Coroutine<>()) {
+            coroutine.body(c -> {
+                c.yield(1);
+                c.yield(2);
+            });
+            assertEquals(List.of(1, 2), coroutine.stream().toList());
+        }
+    }
+
+    @Test
+    public void testFibonacciStream() {
+        try (Coroutine<Integer> coroutine = new Coroutine<>()) {
+            coroutine.body(c -> {
+                int a = 0, b = 1;
+                while (true) {
+                    c.yield(a);
+                    int temp = a + b;
+                    a = b;
+                    b = temp;
+                }
+            });
+            assertEquals(List.of(0, 1, 1, 2, 3, 5, 8),
+                coroutine.stream()
+                    .limit(7)
+                    .toList());
         }
     }
 
