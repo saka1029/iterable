@@ -164,8 +164,8 @@ public class TestCoroutine {
 
     @Test
     public void testFibonacciStream() {
-        try (Coroutine<Integer> coroutine = new Coroutine<>()) {
-            coroutine.body(c -> {
+        try (Coroutine<Integer> fibonacci = new Coroutine<>()) {
+            fibonacci.body(c -> {
                 int a = 0, b = 1;
                 while (true) {
                     c.yield(a);
@@ -175,7 +175,7 @@ public class TestCoroutine {
                 }
             });
             assertEquals(List.of(0, 1, 1, 2, 3, 5, 8),
-                coroutine.stream()
+                fibonacci.stream()
                     .limit(7)
                     .toList());
         }
