@@ -6,7 +6,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -85,18 +84,18 @@ public class TestIterables {
         assertEquals(listOf(1, 2, 3), list(s));
     }
 
-    @Test
-    public void testStreamToIterable() {
-        assertEquals(listOf(1, 2, 3), list(iterable(Stream.of(1, 2, 3))));
-        Iterable<Integer> stream = iterable(Stream.of(1, 2, 3));
-        assertEquals(listOf(1, 2, 3), list(stream));
-        try {
-            // ２回めの呼び出しは例外を投げる。
-            assertEquals(listOf(1, 2, 3), list(stream));
-            fail();
-        } catch (IllegalStateException e) {
-        }
-    }
+    // @Test
+    // public void testStreamToIterable() {
+    //     assertEquals(listOf(1, 2, 3), list(iterable(Stream.of(1, 2, 3))));
+    //     Iterable<Integer> stream = iterable(Stream.of(1, 2, 3));
+    //     assertEquals(listOf(1, 2, 3), list(stream));
+    //     try {
+    //         // ２回めの呼び出しは例外を投げる。
+    //         assertEquals(listOf(1, 2, 3), list(stream));
+    //         fail();
+    //     } catch (IllegalStateException e) {
+    //     }
+    // }
 
     @Test
     public void testLinkedListFromIterable() {

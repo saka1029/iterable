@@ -82,22 +82,6 @@ public class Iterables {
         };
     }
 
-    // public static <T, U> Iterable<U> generate(Supplier<T> seed, Predicate<T> hasNext, Function<T, U> next) {
-    //     return () -> new Iterator<>() {
-    //         T t = seed.get();
-
-    //         @Override
-    //         public boolean hasNext() {
-    //             return hasNext.test(t);
-    //         }
-
-    //         @Override
-    //         public U next() {
-    //             return next.apply(t);
-    //         }
-    //     };
-    // }
-
     public static <T> Iterable<T> iterable(Supplier<Stream<T>> source) {
         return () -> source.get().iterator();
     }
@@ -110,8 +94,19 @@ public class Iterables {
      * @param source 変換するStreamを指定します。
      * @return StreamをIterable<T>に変換した結果を返します。
      */
-    public static <T> Iterable<T> iterable(Stream<T> source) {
-        return source::iterator;
+    // public static <T> Iterable<T> iterable(Stream<T> source) {
+    //     return source::iterator;
+    // }
+
+    /**
+     * 要素を生成する手続き(GeneratorBody)からIterableを生成します。
+     * 使用後にGeneratorをクローズする必要があります。
+     * @param <T>
+     * @param body
+     * @return
+     */
+    public static <T> Generator<T> generate(GeneratorBody<T> body) {
+        return new Generator<>(body);
     }
 
     /*

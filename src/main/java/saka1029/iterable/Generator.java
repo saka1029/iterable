@@ -1,70 +1,67 @@
 package saka1029.iterable;
 
+import java.io.Closeable;
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.function.Consumer;
+import java.util.List;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
-public class Generator<T> implements Iterable<T> {
+public class Generator<T> implements Iterable<T>, Closeable {
 
-    final int capacity = 10;
-    private final Queue<T> que = new LinkedList<>();
-    final Runnable runnable;
+        int queSize = 4;
+        final GeneratorBody<T> body;
+        List<GeneratorContext<T>> runners = new ArrayList<>();
 
-    public Generator(Consumer<Generator<T>> generator) {
-        this.runnable = () -> {
-            generator.accept(this);
-            this.yield(null);
-        };
-    }
+        public Generator(GeneratorBody<T> body) {
+            this.body = body;
+        }
 
-    public static <T> Generator<T> of(Consumer<Generator<T>> generator) {
-        return new Generator<>(generator);
-    }
+        public Generator<T> queSize(int queSize) {
+            this.queSize = queSize;
+            return this;
+        }
 
-    public synchronized void yield(T newValue) {
-        while (que.size() >= capacity)
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                return;
-            }
-        que.add(newValue);
-        notify();
-    }
+        @Override
+        public void close() {
+            for (GeneratorContext<T> e : runners)
+                e.close();
+        }
 
-    private synchronized T take() {
-        while (que.size() <= 0)
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                return null;
-            }
-        T result = que.remove();
-        notify();
-        return result;
-    }
+        private GeneratorContext<T> context() {
+            if (body == null)
+                throw new IllegalStateException("No body.  Call body() first");
+            GeneratorContext<T> runner =  new GeneratorContext<>(queSize, body);
+            runners.add(runner);
+            return runner;
+        }
 
-    @Override
-    public Iterator<T> iterator() {
-        Thread t = new Thread(runnable);
-        t.start();
-        return new Iterator<>() {
-            T next = take();
+        @Override
+        public Iterator<T> iterator() {
+            return new Iterator<>() {
+                GeneratorContext<T> context = context();
+                T next = null;
+                boolean hasNext = advance();
 
-            @Override
-            public boolean hasNext() {
-                return next != null;
-            }
+                private boolean advance() {
+                    return (next = context.take()) != null;
+                }
 
-            @Override
-            public T next() {
-                T result = next;
-                next = take();
-                return result;
-            }
-        };
-    }
+                @Override
+                public boolean hasNext() {
+                    return hasNext;
+                }
+
+                @Override
+                public T next() {
+                    T result = next;
+                    hasNext = advance();
+                    return result;
+                }
+            };
+        }
+
+        public Stream<T> stream() {
+            return StreamSupport.stream(this.spliterator(), false);
+        }
 }

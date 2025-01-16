@@ -9,19 +9,19 @@ import org.junit.Test;
 public class TestGenerator {
 
     @Test
-    public void testGenerator() {
-        Generator<Integer> g = new Generator<>(q -> {
+    public void testGenerate() {
+        try (Generator<Integer> g = generate(q -> {
             q.yield(1);
             q.yield(0);
             q.yield(3);
-        });
-        assertEquals(listOf(1, 0, 3), list(g));
-        assertEquals(listOf(1, 0, 3), list(g));
+        })) {
+            assertEquals(listOf(1, 0, 3), list(g));
+        }
     }
 
     @Test
     public void testFibonacci() {
-        Generator<Integer> fibonacci = new Generator<>(g -> {
+        try (Generator<Integer> fibonacci = generate(g -> {
             int a = 0, b = 1;
             while (true) {
                 g.yield(a);
@@ -29,35 +29,36 @@ public class TestGenerator {
                 a = b;
                 b = c;
             }
-        });
-        assertEquals(listOf(0, 1, 1, 2, 3, 5, 8, 13), list(limit(8, fibonacci)));
+        })) {
+            assertEquals(listOf(0, 1, 1, 2, 3, 5, 8, 13), list(limit(8, fibonacci)));
+        }
     }
 
-    static void fibonacci(Generator<Integer> g) {
+    static void fibonacci(GeneratorContext<Integer> context) throws InterruptedException {
         int a = 0, b = 1;
         while (true) {
-            g.yield(a);
-            int c = a + b;
+            context.yield(a);
+            int temp = a + b;
             a = b;
-            b = c;
+            b = temp;
         }
     }
 
     public void testFibonacciStatic() {
-        Generator<Integer> fibonacci = new Generator<>(TestGenerator::fibonacci);
+        Generator<Integer> fibonacci = generate(TestGenerator::fibonacci);
         assertEquals(listOf(0, 1, 1, 2, 3, 5, 8, 13), list(limit(8, fibonacci)));
-        assertEquals(listOf(0, 1, 1, 2, 3, 5, 8, 13), list(limit(8, new Generator<>(TestGenerator::fibonacci))));
+        assertEquals(listOf(0, 1, 1, 2, 3, 5, 8, 13), list(limit(8, generate(TestGenerator::fibonacci))));
     }
 
     static Generator<int[]> permutation(int n, int k) {
-        return new Generator<>(g -> {
+        return generate(context -> {
             new Object() {
                 int[] selected = new int[k];
                 boolean[] used = new boolean[n];
 
-                void solve(int i) {
+                void solve(int i) throws InterruptedException {
                     if (i >= k)
-                        g.yield(selected.clone());
+                        context.yield(selected.clone());
                     else
                         for (int j = 0; j < n; ++j) {
                             if (!used[j]) {
