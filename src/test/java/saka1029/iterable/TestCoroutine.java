@@ -247,4 +247,27 @@ public class TestCoroutine {
                 permutation.stream().toArray(int[][]::new));
         }
     }
+
+    @Test
+    public void testCombination() {
+        int n = 3, k = 2;
+        try (Coroutine<int[]> combination = new Coroutine<>()) {
+            combination.body(c -> {
+                new Object() {
+                    int[] selected = new int[k];
+                    void solve(int i, int j) throws InterruptedException {
+                        if (i >= k)
+                            c.yield(selected.clone());
+                        else
+                            for (int max = i + n - k; j <= max; ++j) {
+                                selected[i] = j;
+                                solve(i + 1, j + 1);
+                            }
+                    }
+                }.solve(0, 0);
+            });
+            assertArrayEquals(new int[][] {{0, 1}, {0, 2}, {1, 2}},
+                combination.stream().toArray(int[][]::new));
+        }
+    }
 }
