@@ -21,10 +21,10 @@ public class TestGenerator {
 
     @Test
     public void testFibonacci() {
-        try (Generator<Integer> fibonacci = generate(g -> {
+        try (Generator<Integer> fibonacci = generate(context -> {
             int a = 0, b = 1;
             while (true) {
-                g.yield(a);
+                context.yield(a);
                 int c = a + b;
                 a = b;
                 b = c;
