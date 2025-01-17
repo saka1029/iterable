@@ -4,8 +4,6 @@ import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 public class Generator<T> implements Iterable<T>, Closeable {
 
@@ -59,9 +57,5 @@ public class Generator<T> implements Iterable<T>, Closeable {
                     return result;
                 }
             };
-        }
-
-        public Stream<T> stream() {
-            return StreamSupport.stream(this.spliterator(), false);
         }
 }
