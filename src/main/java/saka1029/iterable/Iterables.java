@@ -30,7 +30,7 @@ public class Iterables {
     }
 
     /*
-     * Constructors
+     * Generators
      */
 
     @SafeVarargs
@@ -82,35 +82,174 @@ public class Iterables {
         };
     }
 
+    public static Iterable<Integer> range(int start, int end) {
+        return range(start, end, start <= end ? 1 : -1);
+    }
+
     public static <T> Iterable<T> iterable(Supplier<Stream<T>> source) {
         return () -> source.get().iterator();
     }
 
     /**
-     * StreamをIterableに変換します。
-     * ただし変換後のIterableに対して、
-     * iterator()は一度しか呼び出せない点に注意する必要があります。
-     * @param <T>
-     * @param source 変換するStreamを指定します。
-     * @return StreamをIterable<T>に変換した結果を返します。
-     */
-    // public static <T> Iterable<T> iterable(Stream<T> source) {
-    //     return source::iterator;
-    // }
-
-    /**
      * 要素を生成する手続き(GeneratorBody)からIterableを生成します。
      * 使用後にGeneratorをクローズする必要があります。
-     * @param <T>
-     * @param body
+     * 以下はフィボナッチ数を無限に生成するGeneratorの使用例です。
+     * <pre><code>
+     *    try (Generator<Integer> fibonacci = generate(g -> {
+     *        int a = 0, b = 1;
+     *        while (true) {
+     *            g.yield(a);
+     *            int c = a + b;
+     *            a = b;
+     *            b = c;
+     *        }
+     *    })) {
+     *        assertEquals(listOf(0, 1, 1, 2, 3, 5, 8, 13), list(limit(8, fibonacci)));
+     *    }
+     * </code></pre>
+     * @param <T> 生成する要素の型です。
+     * @param body 要素を生成する手続きを指定します。
      * @return
      */
     public static <T> Generator<T> generate(GeneratorBody<T> body) {
         return new Generator<>(body);
     }
 
+    /**
+     * n個の要素からk個取り出す順列の数を返します。
+     * @param n 全体の要素の数を指定します。
+     * @param k 取り出す要素の数を指定します。
+     * @return 順列の数を返します。
+     */
+    public static int permutationCount(int n, int k) {
+        if (n < 0) throw new IllegalArgumentException("n must be >= 0");
+        if (k < 0) throw new IllegalArgumentException("k must be >= 0");
+        int permutation = 1;
+        for (; k > 0; --k, --n)
+            permutation *= n;
+        return permutation;
+    }
+
+    /**
+     * n個の数字(0からn-1)からk個取り出す順列を返します。
+     * @param n 要素の数を指定します。
+     * @param k 取り出す要素の数を指定します。
+     * @return 順列(int[k])のIterableを返します。
+     */
+    public static Iterable<int[]> permutation(int n, int k) {
+        if (n < 0) throw new IllegalArgumentException("n must be >= 0");
+        if (k < 0) throw new IllegalArgumentException("k must be >= 0");
+        return () -> new Iterator<>() {
+            int[] selected = new int[k];            // 結果を格納する配列。
+            { if (k > 0) selected[0] = -1; }        // 先頭の値を初期値にする。
+            boolean[] used = new boolean[n];        // 値が使用済みであることを判別する配列。
+            int i = 0;                              // 格納位置。
+            boolean hasNext = advance();            // 結果があるかどうかを保持する変数。
+
+            private boolean advance() {             // 次の結果があるかどうかを返す。
+                while (true) {
+                    if (i < 0)                      // 配置位置が先頭以前に戻ったとき
+                        return false;               // すべての組み合わせが終了した。
+                    if (i >= k) {                   // 配置が完了した。
+                        --i;                        // 次の配置位置は最後
+                        return true;                // 結果を返す。
+                    }
+                    int j = selected[i];            // 現在配置されている値。
+                    if (j >= 0)                     // 現在配置されている値が初期値でなければ
+                        used[j] = false;            // 未使用とする。
+                    while (++j < n && used[j])      // 未使用の値を見つける。
+                        /* do nothing */;
+                    if (j >= n)                     // 次に配置する値が上限を超えていたら
+                        --i;                        // 配置位置を前に戻す。
+                    else {                          // 配置が有効なら
+                        used[selected[i] = j] = true;  // 配置して値を使用済にする。
+                        if (++i < k)                // 配置位置を次に進める。
+                            selected[i] = -1;
+                    }
+                }
+            }
+
+            @Override
+            public boolean hasNext() {
+                return hasNext;
+            }
+
+            @Override
+            public int[] next() {
+                int[] result = selected.clone();
+                hasNext = advance();
+                return result;
+            }
+        };
+    }
+
+    public static <T> Iterable<List<T>> permutation(List<T> list, int k) {
+        return indexMap(list, permutation(list.size(), k));
+    }
+
+    /**
+     * n個の要素からk個取り出す組み合わせの数を返します。
+     * @param n 全体の要素の数を指定します。
+     * @param k 取り出す要素の数を指定します。
+     * @return 組み合わせの数を返します。
+     */
+    public static int combinationCount(int n, int k) {
+        if (n < 0) throw new IllegalArgumentException("n must be >= 0");
+        if (k < 0) throw new IllegalArgumentException("r must be >= 0");
+        if (k > n)
+            return 0;
+        k = Math.min(k, n - k);
+        int count = 1;
+        for(int i = 1, j = n - i + 1; i <= k; ++i, --j)
+            count = count * j / i;
+        return count;
+    }
+
+    public static Iterable<int[]> combination(int n, int k) {
+        if (n < 0) throw new IllegalArgumentException("n must be >= 0");
+        if (k < 0) throw new IllegalArgumentException("k must be >= 0");
+        return () -> new Iterator<>() {
+            final int nmk = n - k;                          // 各位置における最大値(n - k + i)を求める定数。
+            final int[] selected = new int[k];              // 結果を格納する配列。
+            {
+                for (int i = 0; i < k; ++i)                 // {0, 1, 2, ... , k - 1}で初期化
+                    selected[i] = i;
+            }
+
+            boolean hasNext = k <= n;                       // k > n のときは該当なし。
+
+            private boolean advance() {
+                int i = k - 1;                              // 最後の格納位置。
+                while (i >= 0 && selected[i] >= nmk + i)    // 末尾から最大値を超えない位置を探す。
+                    --i;
+                if (i < 0)                                  // 見つからない場合は終了する。
+                    return false;
+                int next = ++selected[i];                   // 次の値に進める。
+                while (++i < k)                             // それ以降の位置は残りの最小値を設定する。
+                    selected[i] = ++next;
+                return true;
+            }
+
+            @Override
+            public boolean hasNext() {
+                return hasNext;
+            }
+
+            @Override
+            public int[] next() {
+                int[] result = selected.clone();
+                hasNext = advance();
+                return result;
+            }
+        };
+    }
+
+    public static <T> Iterable<List<T>> combination(List<T> list, int k) {
+        return indexMap(list, combination(list.size(), k));
+    }
+
     /*
-     * Converters
+     * Translators
      */
     public static <T, U> Iterable<U> map(Function<T, U> mapper, Iterable<T> source) {
         return () -> new Iterator<>() {

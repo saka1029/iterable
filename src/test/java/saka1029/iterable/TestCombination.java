@@ -9,38 +9,38 @@ public class TestCombination {
 
     @Test
     public void testCount() {
-        assertEquals(1, Combination.count(0, 0));
-        assertEquals(0, Combination.count(0, 1));
-        assertEquals(0, Combination.count(0, 2));
-        assertEquals(0, Combination.count(0, 3));
-        assertEquals(1, Combination.count(1, 0));
-        assertEquals(1, Combination.count(1, 1));
-        assertEquals(0, Combination.count(1, 2));
-        assertEquals(0, Combination.count(1, 3));
-        assertEquals(1, Combination.count(2, 0));
-        assertEquals(2, Combination.count(2, 1));
-        assertEquals(1, Combination.count(2, 2));
-        assertEquals(0, Combination.count(2, 3));
-        assertEquals(1, Combination.count(3, 0));
-        assertEquals(3, Combination.count(3, 1));
-        assertEquals(3, Combination.count(3, 2));
-        assertEquals(1, Combination.count(3, 3));
-        assertEquals(1, Combination.count(4, 0));
-        assertEquals(4, Combination.count(4, 1));
-        assertEquals(6, Combination.count(4, 2));
-        assertEquals(4, Combination.count(4, 3));
-        assertEquals(1, Combination.count(4, 4));
-        assertEquals(0, Combination.count(4, 5));
+        assertEquals(1, combinationCount(0, 0));
+        assertEquals(0, combinationCount(0, 1));
+        assertEquals(0, combinationCount(0, 2));
+        assertEquals(0, combinationCount(0, 3));
+        assertEquals(1, combinationCount(1, 0));
+        assertEquals(1, combinationCount(1, 1));
+        assertEquals(0, combinationCount(1, 2));
+        assertEquals(0, combinationCount(1, 3));
+        assertEquals(1, combinationCount(2, 0));
+        assertEquals(2, combinationCount(2, 1));
+        assertEquals(1, combinationCount(2, 2));
+        assertEquals(0, combinationCount(2, 3));
+        assertEquals(1, combinationCount(3, 0));
+        assertEquals(3, combinationCount(3, 1));
+        assertEquals(3, combinationCount(3, 2));
+        assertEquals(1, combinationCount(3, 3));
+        assertEquals(1, combinationCount(4, 0));
+        assertEquals(4, combinationCount(4, 1));
+        assertEquals(6, combinationCount(4, 2));
+        assertEquals(4, combinationCount(4, 3));
+        assertEquals(1, combinationCount(4, 4));
+        assertEquals(0, combinationCount(4, 5));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testCountIllegalN() {
-        Combination.count(-1, 0);
+        combinationCount(-1, 0);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testCountIllegalK() {
-        Combination.count(0, -1);
+        combinationCount(0, -1);
     }
 
     static final int[][] COMB_0_0 = {{}};
@@ -68,49 +68,43 @@ public class TestCombination {
 
     @Test
     public void testIterable() {
-        assertArrayEquals(COMB_0_0, array(Combination.iterable(0, 0)));
-        assertArrayEquals(COMB_0_1, array(Combination.iterable(0, 1)));
-        assertArrayEquals(COMB_0_2, array(Combination.iterable(0, 2)));
-        assertArrayEquals(COMB_0_3, array(Combination.iterable(0, 3)));
-        assertArrayEquals(COMB_1_0, array(Combination.iterable(1, 0)));
-        assertArrayEquals(COMB_1_1, array(Combination.iterable(1, 1)));
-        assertArrayEquals(COMB_1_2, array(Combination.iterable(1, 2)));
-        assertArrayEquals(COMB_1_3, array(Combination.iterable(1, 3)));
-        assertArrayEquals(COMB_2_0, array(Combination.iterable(2, 0)));
-        assertArrayEquals(COMB_2_1, array(Combination.iterable(2, 1)));
-        assertArrayEquals(COMB_2_2, array(Combination.iterable(2, 2)));
-        assertArrayEquals(COMB_2_3, array(Combination.iterable(2, 3)));
-        assertArrayEquals(COMB_3_0, array(Combination.iterable(3, 0)));
-        assertArrayEquals(COMB_3_1, array(Combination.iterable(3, 1)));
-        assertArrayEquals(COMB_3_2, array(Combination.iterable(3, 2)));
-        assertArrayEquals(COMB_3_3, array(Combination.iterable(3, 3)));
-        assertArrayEquals(COMB_4_0, array(Combination.iterable(4, 0)));
-        assertArrayEquals(COMB_4_1, array(Combination.iterable(4, 1)));
-        assertArrayEquals(COMB_4_2, array(Combination.iterable(4, 2)));
-        assertArrayEquals(COMB_4_3, array(Combination.iterable(4, 3)));
-        assertArrayEquals(COMB_4_4, array(Combination.iterable(4, 4)));
-        assertArrayEquals(COMB_4_5, array(Combination.iterable(4, 5)));
+        assertArrayEquals(COMB_0_0, array(combination(0, 0)));
+        assertArrayEquals(COMB_0_1, array(combination(0, 1)));
+        assertArrayEquals(COMB_0_2, array(combination(0, 2)));
+        assertArrayEquals(COMB_0_3, array(combination(0, 3)));
+        assertArrayEquals(COMB_1_0, array(combination(1, 0)));
+        assertArrayEquals(COMB_1_1, array(combination(1, 1)));
+        assertArrayEquals(COMB_1_2, array(combination(1, 2)));
+        assertArrayEquals(COMB_1_3, array(combination(1, 3)));
+        assertArrayEquals(COMB_2_0, array(combination(2, 0)));
+        assertArrayEquals(COMB_2_1, array(combination(2, 1)));
+        assertArrayEquals(COMB_2_2, array(combination(2, 2)));
+        assertArrayEquals(COMB_2_3, array(combination(2, 3)));
+        assertArrayEquals(COMB_3_0, array(combination(3, 0)));
+        assertArrayEquals(COMB_3_1, array(combination(3, 1)));
+        assertArrayEquals(COMB_3_2, array(combination(3, 2)));
+        assertArrayEquals(COMB_3_3, array(combination(3, 3)));
+        assertArrayEquals(COMB_4_0, array(combination(4, 0)));
+        assertArrayEquals(COMB_4_1, array(combination(4, 1)));
+        assertArrayEquals(COMB_4_2, array(combination(4, 2)));
+        assertArrayEquals(COMB_4_3, array(combination(4, 3)));
+        assertArrayEquals(COMB_4_4, array(combination(4, 4)));
+        assertArrayEquals(COMB_4_5, array(combination(4, 5)));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testIterableIllgalN() {
-        Combination.iterable(-1, 0);
+        combination(-1, 0);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testIterableIllgalK() {
-        Combination.iterable(0, -1);
-    }
-
-    @Test
-    public void testIterableIntArray() {
-        assertArrayEquals(new int[][] {{10}, {20}},
-            array(Combination.iterable(intArrayOf(10, 20), 1)));
+        combination(0, -1);
     }
 
     @Test
     public void testIterableList() {
         assertEquals(listOf(listOf("a"), listOf("b")),
-            list(Combination.iterable(listOf("a", "b"), 1)));
+            list(combination(listOf("a", "b"), 1)));
     }
 }

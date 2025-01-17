@@ -1,7 +1,6 @@
 package saka1029.iterable;
 
 import static saka1029.iterable.Iterables.*;
-import static saka1029.iterable.Permutation.*;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
@@ -10,32 +9,32 @@ public class TestPermutation {
 
     @Test
     public void testCount() {
-        assertEquals(1, count(0, 0));
-        assertEquals(0, count(0, 1));
-        assertEquals(0, count(0, 2));
-        assertEquals(0, count(0, 3));
-        assertEquals(1, count(1, 0));
-        assertEquals(1, count(1, 1));
-        assertEquals(0, count(1, 2));
-        assertEquals(0, count(1, 3));
-        assertEquals(1, count(2, 0));
-        assertEquals(2, count(2, 1));
-        assertEquals(2, count(2, 2));
-        assertEquals(0, count(2, 3));
-        assertEquals(1, count(3, 0));
-        assertEquals(3, count(3, 1));
-        assertEquals(6, count(3, 2));
-        assertEquals(6, count(3, 3));
+        assertEquals(1, permutationCount(0, 0));
+        assertEquals(0, permutationCount(0, 1));
+        assertEquals(0, permutationCount(0, 2));
+        assertEquals(0, permutationCount(0, 3));
+        assertEquals(1, permutationCount(1, 0));
+        assertEquals(1, permutationCount(1, 1));
+        assertEquals(0, permutationCount(1, 2));
+        assertEquals(0, permutationCount(1, 3));
+        assertEquals(1, permutationCount(2, 0));
+        assertEquals(2, permutationCount(2, 1));
+        assertEquals(2, permutationCount(2, 2));
+        assertEquals(0, permutationCount(2, 3));
+        assertEquals(1, permutationCount(3, 0));
+        assertEquals(3, permutationCount(3, 1));
+        assertEquals(6, permutationCount(3, 2));
+        assertEquals(6, permutationCount(3, 3));
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testCountIllegalN() {
-        count(-1, 0);
+    public void testpermutationCountIllegalN() {
+        permutationCount(-1, 0);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testCountIllegalK() {
-        count(0, -1);
+    public void testpermutationCountIllegalK() {
+        permutationCount(0, -1);
     }
 
     static final int[][] PERM_0_0 = {{}};
@@ -79,49 +78,43 @@ public class TestPermutation {
 
     @Test
     public void testIterable() {
-        assertArrayEquals(PERM_0_0, array(iterable(0, 0)));
-        assertArrayEquals(PERM_0_1, array(iterable(0, 1)));
-        assertArrayEquals(PERM_0_2, array(iterable(0, 2)));
-        assertArrayEquals(PERM_0_3, array(iterable(0, 3)));
-        assertArrayEquals(PERM_1_0, array(iterable(1, 0)));
-        assertArrayEquals(PERM_1_1, array(iterable(1, 1)));
-        assertArrayEquals(PERM_1_2, array(iterable(1, 2)));
-        assertArrayEquals(PERM_1_3, array(iterable(1, 3)));
-        assertArrayEquals(PERM_2_0, array(iterable(2, 0)));
-        assertArrayEquals(PERM_2_1, array(iterable(2, 1)));
-        assertArrayEquals(PERM_2_2, array(iterable(2, 2)));
-        assertArrayEquals(PERM_2_3, array(iterable(2, 3)));
-        assertArrayEquals(PERM_3_0, array(iterable(3, 0)));
-        assertArrayEquals(PERM_3_1, array(iterable(3, 1)));
-        assertArrayEquals(PERM_3_2, array(iterable(3, 2)));
-        assertArrayEquals(PERM_3_3, array(iterable(3, 3)));
-        assertArrayEquals(PERM_4_0, array(iterable(4, 0)));
-        assertArrayEquals(PERM_4_1, array(iterable(4, 1)));
-        assertArrayEquals(PERM_4_2, array(iterable(4, 2)));
-        assertArrayEquals(PERM_4_3, array(iterable(4, 3)));
-        assertArrayEquals(PERM_4_4, array(iterable(4, 4)));
+        assertArrayEquals(PERM_0_0, array(permutation(0, 0)));
+        assertArrayEquals(PERM_0_1, array(permutation(0, 1)));
+        assertArrayEquals(PERM_0_2, array(permutation(0, 2)));
+        assertArrayEquals(PERM_0_3, array(permutation(0, 3)));
+        assertArrayEquals(PERM_1_0, array(permutation(1, 0)));
+        assertArrayEquals(PERM_1_1, array(permutation(1, 1)));
+        assertArrayEquals(PERM_1_2, array(permutation(1, 2)));
+        assertArrayEquals(PERM_1_3, array(permutation(1, 3)));
+        assertArrayEquals(PERM_2_0, array(permutation(2, 0)));
+        assertArrayEquals(PERM_2_1, array(permutation(2, 1)));
+        assertArrayEquals(PERM_2_2, array(permutation(2, 2)));
+        assertArrayEquals(PERM_2_3, array(permutation(2, 3)));
+        assertArrayEquals(PERM_3_0, array(permutation(3, 0)));
+        assertArrayEquals(PERM_3_1, array(permutation(3, 1)));
+        assertArrayEquals(PERM_3_2, array(permutation(3, 2)));
+        assertArrayEquals(PERM_3_3, array(permutation(3, 3)));
+        assertArrayEquals(PERM_4_0, array(permutation(4, 0)));
+        assertArrayEquals(PERM_4_1, array(permutation(4, 1)));
+        assertArrayEquals(PERM_4_2, array(permutation(4, 2)));
+        assertArrayEquals(PERM_4_3, array(permutation(4, 3)));
+        assertArrayEquals(PERM_4_4, array(permutation(4, 4)));
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testIterableIllgalN() {
-        iterable(-1, 0);
+    public void testpermutationIllgalN() {
+        permutation(-1, 0);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testIterableIllgalK() {
-        iterable(0, -1);
+    public void testpermutationIllgalK() {
+        permutation(0, -1);
     }
 
     @Test
-    public void testIterableIntArray() {
-        assertArrayEquals(new int[][] {{10, 20}, {20, 10}},
-            array(iterable(intArrayOf(10, 20), 2)));
-    }
-
-    @Test
-    public void testIterableList() {
+    public void testPermutationList() {
         assertEquals(listOf(listOf("a", "b"), listOf("b", "a")),
-            list(iterable(listOf("a", "b"), 2)));
+            list(permutation(listOf("a", "b"), 2)));
     }
 
     static int number(int... digits) {
@@ -139,7 +132,7 @@ public class TestPermutation {
             list(
                 map(ints -> intListOf(ints),
                     filter(d -> isSendMoreMoney(d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7]),
-                        iterable(10, 8)))));
+                        permutation(10, 8)))));
     }
 
     /**
