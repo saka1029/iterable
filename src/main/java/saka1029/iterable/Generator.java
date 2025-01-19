@@ -1,61 +1,154 @@
 package saka1029.iterable;
 
 import java.io.Closeable;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.Queue;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class Generator<T> implements Iterable<T>, Closeable {
 
-        int queSize = 4;
-        final GeneratorBody<T> body;
-        List<GeneratorContext<T>> runners = new ArrayList<>();
+    /**
+     * Generatorの本体を定義するためのインタフェースです。
+     */
+    public interface Body<T> {
+        void accept(Context<T> context) throws InterruptedException;
+    }
 
-        public Generator(GeneratorBody<T> body) {
-            this.body = body;
-        }
+    public static class Context<T> implements Closeable {
 
-        public Generator<T> queSize(int queSize) {
+        final int queSize;
+        final Thread thread;
+        final Queue<T> que = new LinkedList<>();
+
+        Context(int queSize, Body<T> body) {
+            if (body == null)
+                throw new IllegalArgumentException("body");
+            Runnable runnable = () -> {
+                try {
+                    body.accept(this);
+                    this.yield(null);
+                } catch (InterruptedException e) {
+                    System.out.println("Generator.Context: body interrupted");
+                }
+                System.out.println("Generator.Context: body end");
+            };
             this.queSize = queSize;
-            return this;
+            this.thread = new Thread(runnable);
+            this.thread.start();
         }
 
         @Override
         public void close() {
-            for (GeneratorContext<T> e : runners)
-                e.close();
+            System.out.println("Generator.Context.close()");
+            thread.interrupt();
         }
 
-        private GeneratorContext<T> context() {
-            if (body == null)
-                throw new IllegalStateException("No body.  Call body() first");
-            GeneratorContext<T> runner =  new GeneratorContext<>(queSize, body);
-            runners.add(runner);
-            return runner;
+        public synchronized void yield(T newValue) throws InterruptedException {
+            System.out.println("Generator.Context.yield: enter " + str(newValue));
+            if (thread.isInterrupted())
+                throw new InterruptedException("Generator.Context.yield: interrupted");
+            while (que.size() >= queSize)
+                wait();
+            System.out.println("Generator.Context.yield: add " + str(newValue));
+            que.add(newValue);
+            notify();
         }
 
-        @Override
-        public Iterator<T> iterator() {
-            return new Iterator<>() {
-                GeneratorContext<T> context = context();
-                T next = null;
-                boolean hasNext = advance();
-
-                private boolean advance() {
-                    return (next = context.take()) != null;
-                }
-
-                @Override
-                public boolean hasNext() {
-                    return hasNext;
-                }
-
-                @Override
-                public T next() {
-                    T result = next;
-                    hasNext = advance();
-                    return result;
-                }
-            };
+        synchronized T take() {
+            System.out.println("Generator.Context.take: enter isAlive=" + thread.isAlive()
+                    + " que.size=" + que.size());
+            if (!thread.isAlive()) {
+                if (que.size() <= 0)
+                    throw new NoSuchElementException("No yield element");
+            } else
+                while (que.size() <= 0)
+                    try {
+                        System.out.println("Generator.Context.take: wait ");
+                        wait();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+            T result = que.remove();
+            System.out.println("Generator.Context.take: remove " + str(result));
+            notify();
+            return result;
         }
+    }
+
+    static String str(Object obj) {
+        if (obj == null)
+            return "null";
+        if (!obj.getClass().isArray())
+            return Objects.toString(obj);
+        StringBuilder sb = new StringBuilder("[");
+        int size = Array.getLength(obj);
+        if (size > 0)
+            sb.append(str(Array.get(obj, 0)));
+        for (int i = 1; i < size; ++i)
+            sb.append(", ").append(str(Array.get(obj, i)));
+        return sb.append("]").toString();
+    }
+
+    int queSize = 4;
+    final Body<T> body;
+    List<Context<T>> runners = new ArrayList<>();
+
+    public Generator(Body<T> body) {
+        this.body = body;
+    }
+
+    public Generator<T> queSize(int queSize) {
+        this.queSize = queSize;
+        return this;
+    }
+
+    @Override
+    public void close() {
+        for (Context<T> e : runners)
+            e.close();
+    }
+
+    private Context<T> context() {
+        if (body == null)
+            throw new IllegalStateException("No body.  Call body() first");
+        Context<T> runner = new Context<>(queSize, body);
+        runners.add(runner);
+        return runner;
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return new Iterator<>() {
+            Context<T> context = context();
+            T next = null;
+            boolean hasNext = advance();
+
+            private boolean advance() {
+                return (next = context.take()) != null;
+            }
+
+            @Override
+            public boolean hasNext() {
+                return hasNext;
+            }
+
+            @Override
+            public T next() {
+                T result = next;
+                hasNext = advance();
+                return result;
+            }
+        };
+    }
+
+    public Stream<T> stream() {
+        return StreamSupport.stream(spliterator(), false);
+    }
 }

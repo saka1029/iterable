@@ -1,6 +1,7 @@
 package saka1029.iterable;
 
 import static saka1029.iterable.TestPermutation.*;
+import java.util.List;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static saka1029.iterable.Iterables.*;
@@ -20,6 +21,17 @@ public class TestGenerator {
     }
 
     @Test
+    public void testGenerateStream() {
+        try (Generator<Integer> g = generate(q -> {
+            q.yield(1);
+            q.yield(0);
+            q.yield(3);
+        })) {
+            assertEquals(List.of(1, 0, 3), g.stream().toList());
+        }
+    }
+
+    @Test
     public void testFibonacci() {
         try (Generator<Integer> fibonacci = generate(context -> {
             int a = 0, b = 1;
@@ -34,7 +46,7 @@ public class TestGenerator {
         }
     }
 
-    static void fibonacci(GeneratorContext<Integer> context) throws InterruptedException {
+    static void fibonacci(Generator.Context<Integer> context) throws InterruptedException {
         int a = 0, b = 1;
         while (true) {
             context.yield(a);

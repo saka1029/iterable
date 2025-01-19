@@ -111,7 +111,7 @@ public class Iterables {
      * @param body 要素を生成する手続きを指定します。
      * @return
      */
-    public static <T> Generator<T> generate(GeneratorBody<T> body) {
+    public static <T> Generator<T> generate(Generator.Body<T> body) {
         return new Generator<>(body);
     }
 
