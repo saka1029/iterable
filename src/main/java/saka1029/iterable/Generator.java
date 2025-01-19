@@ -17,6 +17,9 @@ import saka1029.Common;
 public class Generator<T> implements Iterable<T>, Closeable {
 
     static final Logger logger = Common.logger(Generator.class);
+    static void info(String s) {
+        logger.info(s);
+    }
 
     /**
      * Generatorの本体を定義するためのインタフェースです。
@@ -39,9 +42,9 @@ public class Generator<T> implements Iterable<T>, Closeable {
                     body.accept(this);
                     this.yield(null);
                 } catch (InterruptedException e) {
-                    logger.info("Generator.Context: body interrupted");
+                    info("Generator.Context: body interrupted");
                 }
-                logger.info("Generator.Context: body end");
+                info("Generator.Context: body end");
             };
             this.queSize = queSize;
             this.thread = new Thread(runnable);
@@ -50,23 +53,23 @@ public class Generator<T> implements Iterable<T>, Closeable {
 
         @Override
         public void close() {
-            logger.info("Generator.Context.close()");
+            info("Generator.Context.close()");
             thread.interrupt();
         }
 
         public synchronized void yield(T newValue) throws InterruptedException {
-            logger.info("Generator.Context.yield: enter " + str(newValue));
+            info("Generator.Context.yield: enter " + str(newValue));
             if (thread.isInterrupted())
                 throw new InterruptedException("Generator.Context.yield: interrupted");
             while (que.size() >= queSize)
                 wait();
-            logger.info("Generator.Context.yield: add " + str(newValue));
+            info("Generator.Context.yield: add " + str(newValue));
             que.add(newValue);
             notify();
         }
 
         synchronized T take() {
-            logger.info("Generator.Context.take: enter isAlive=" + thread.isAlive()
+            info("Generator.Context.take: enter isAlive=" + thread.isAlive()
                     + " que.size=" + que.size());
             if (!thread.isAlive()) {
                 if (que.size() <= 0)
@@ -74,13 +77,13 @@ public class Generator<T> implements Iterable<T>, Closeable {
             } else
                 while (que.size() <= 0)
                     try {
-                        logger.info("Generator.Context.take: wait ");
+                        info("Generator.Context.take: wait ");
                         wait();
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
             T result = que.remove();
-            logger.info("Generator.Context.take: remove " + str(result));
+            info("Generator.Context.take: remove " + str(result));
             notify();
             return result;
         }
