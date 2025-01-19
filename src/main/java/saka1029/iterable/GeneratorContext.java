@@ -39,7 +39,7 @@ public class GeneratorContext<T> implements Closeable {
     public synchronized void yield(T newValue) throws InterruptedException {
         System.out.println("GeneratorContext.yield: enter " + str(newValue));
         if (thread.isInterrupted())
-            throw new InterruptedException();
+            throw new InterruptedException("GeneratorContext.yield: interrupted");
         while (que.size() >= queSize)
             wait();
         System.out.println("GeneratorContext.yield: add " + str(newValue));
