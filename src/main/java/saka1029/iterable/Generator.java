@@ -9,10 +9,14 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Queue;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+import saka1029.Common;
 
 public class Generator<T> implements Iterable<T>, Closeable {
+
+    static final Logger logger = Common.logger(Generator.class);
 
     /**
      * Generatorの本体を定義するためのインタフェースです。
@@ -35,9 +39,9 @@ public class Generator<T> implements Iterable<T>, Closeable {
                     body.accept(this);
                     this.yield(null);
                 } catch (InterruptedException e) {
-                    System.out.println("Generator.Context: body interrupted");
+                    logger.info("Generator.Context: body interrupted");
                 }
-                System.out.println("Generator.Context: body end");
+                logger.info("Generator.Context: body end");
             };
             this.queSize = queSize;
             this.thread = new Thread(runnable);
@@ -46,23 +50,23 @@ public class Generator<T> implements Iterable<T>, Closeable {
 
         @Override
         public void close() {
-            System.out.println("Generator.Context.close()");
+            logger.info("Generator.Context.close()");
             thread.interrupt();
         }
 
         public synchronized void yield(T newValue) throws InterruptedException {
-            System.out.println("Generator.Context.yield: enter " + str(newValue));
+            logger.info("Generator.Context.yield: enter " + str(newValue));
             if (thread.isInterrupted())
                 throw new InterruptedException("Generator.Context.yield: interrupted");
             while (que.size() >= queSize)
                 wait();
-            System.out.println("Generator.Context.yield: add " + str(newValue));
+            logger.info("Generator.Context.yield: add " + str(newValue));
             que.add(newValue);
             notify();
         }
 
         synchronized T take() {
-            System.out.println("Generator.Context.take: enter isAlive=" + thread.isAlive()
+            logger.info("Generator.Context.take: enter isAlive=" + thread.isAlive()
                     + " que.size=" + que.size());
             if (!thread.isAlive()) {
                 if (que.size() <= 0)
@@ -70,13 +74,13 @@ public class Generator<T> implements Iterable<T>, Closeable {
             } else
                 while (que.size() <= 0)
                     try {
-                        System.out.println("Generator.Context.take: wait ");
+                        logger.info("Generator.Context.take: wait ");
                         wait();
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
             T result = que.remove();
-            System.out.println("Generator.Context.take: remove " + str(result));
+            logger.info("Generator.Context.take: remove " + str(result));
             notify();
             return result;
         }
