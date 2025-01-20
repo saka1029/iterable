@@ -1,17 +1,23 @@
 package saka1029.iterable;
 
 import static saka1029.iterable.TestPermutation.*;
+
+import java.util.Iterator;
 import java.util.List;
+
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static saka1029.iterable.Iterables.*;
 import org.junit.Test;
 
 public class TestGenerator {
 
     @Test
-    public void testGenerate() {
-        try (Generator<Integer> g = generate(q -> {
+    public void testGenerator() {
+        try (Generator<Integer> g = Generator.of(q -> {
             q.yield(1);
             q.yield(0);
             q.yield(3);
@@ -21,8 +27,8 @@ public class TestGenerator {
     }
 
     @Test
-    public void testGenerateStream() {
-        try (Generator<Integer> g = generate(q -> {
+    public void testGeneratorStream() {
+        try (Generator<Integer> g = Generator.of(q -> {
             q.yield(1);
             q.yield(0);
             q.yield(3);
@@ -32,8 +38,38 @@ public class TestGenerator {
     }
 
     @Test
+    public void testGeneratorIterator() {
+        try (Generator<Integer> g = Generator.of(q -> {
+            q.yield(1);
+            q.yield(0);
+            q.yield(3);
+        })) {
+            Iterator<Integer> iterator = g.iterator();
+            assertTrue(iterator.hasNext()); assertEquals(1, (int)iterator.next());
+            assertTrue(iterator.hasNext()); assertEquals(0, (int)iterator.next());
+            assertTrue(iterator.hasNext()); assertEquals(3, (int)iterator.next());
+            assertFalse(iterator.hasNext());
+        }
+    }
+
+    @Test
+    public void testGeneratorContextTake() {
+        try (Generator<Integer> g = Generator.of(q -> {
+            q.yield(1);
+            q.yield(0);
+            q.yield(3);
+        })) {
+            Generator.Context<Integer> context = g.context();
+            assertEquals(1, (int)context.take());
+            assertEquals(0, (int)context.take());
+            assertEquals(3, (int)context.take());
+            assertNull(context.take());
+        }
+    }
+
+    @Test
     public void testFibonacci() {
-        try (Generator<Integer> fibonacci = generate(context -> {
+        try (Generator<Integer> fibonacci = Generator.of(context -> {
             int a = 0, b = 1;
             while (true) {
                 context.yield(a);
@@ -57,9 +93,9 @@ public class TestGenerator {
     }
 
     public void testFibonacciStatic() {
-        Generator<Integer> fibonacci = generate(TestGenerator::fibonacci);
+        Generator<Integer> fibonacci = Generator.of(TestGenerator::fibonacci);
         assertEquals(listOf(0, 1, 1, 2, 3, 5, 8, 13), list(limit(8, fibonacci)));
-        assertEquals(listOf(0, 1, 1, 2, 3, 5, 8, 13), list(limit(8, generate(TestGenerator::fibonacci))));
+        assertEquals(listOf(0, 1, 1, 2, 3, 5, 8, 13), list(limit(8, Generator.of(TestGenerator::fibonacci))));
     }
 
     static Generator<int[]> permutation(int n, int k) {

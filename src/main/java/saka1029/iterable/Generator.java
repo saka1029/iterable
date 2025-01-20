@@ -35,8 +35,6 @@ public class Generator<T> implements Iterable<T>, Closeable {
         final Queue<T> que = new LinkedList<>();
 
         Context(int queSize, Body<T> body) {
-            if (body == null)
-                throw new IllegalArgumentException("body");
             Runnable runnable = () -> {
                 try {
                     body.accept(this);
@@ -107,11 +105,19 @@ public class Generator<T> implements Iterable<T>, Closeable {
     final Body<T> body;
     List<Context<T>> runners = new ArrayList<>();
 
-    public Generator(Body<T> body) {
+    Generator(Body<T> body) {
+        if (body == null)
+            throw new IllegalArgumentException("body");
         this.body = body;
     }
 
+    public static <T> Generator<T> of(Body<T> body) {
+        return new Generator<>(body);
+    }
+
     public Generator<T> queSize(int queSize) {
+        if (queSize <= 0)
+            throw new IllegalArgumentException("queSize");
         this.queSize = queSize;
         return this;
     }
@@ -122,7 +128,7 @@ public class Generator<T> implements Iterable<T>, Closeable {
             e.close();
     }
 
-    private Context<T> context() {
+    Context<T> context() {
         if (body == null)
             throw new IllegalStateException("No body.  Call body() first");
         Context<T> runner = new Context<>(queSize, body);
