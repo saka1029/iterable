@@ -33,6 +33,7 @@ public class Generator<T> implements Iterable<T>, Closeable {
         final int queSize;
         final Thread thread;
         final Queue<T> que = new LinkedList<>();
+        boolean takeNull = false;
 
         Context(int queSize, Body<T> body) {
             Runnable runnable = () -> {
@@ -69,18 +70,18 @@ public class Generator<T> implements Iterable<T>, Closeable {
         synchronized T take() {
             info("Generator.Context.take: enter isAlive=" + thread.isAlive()
                     + " que.size=" + que.size());
-            if (!thread.isAlive()) {
-                if (que.size() <= 0)
-                    throw new NoSuchElementException("No yield element");
-            } else
-                while (que.size() <= 0)
-                    try {
-                        info("Generator.Context.take: wait ");
-                        wait();
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
+            if (takeNull)
+                throw new NoSuchElementException("No yield element");
+            while (que.size() <= 0)
+                try {
+                    info("Generator.Context.take: wait ");
+                    wait();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             T result = que.remove();
+            if (result == null)
+                takeNull = true;
             info("Generator.Context.take: remove " + str(result));
             notify();
             return result;
