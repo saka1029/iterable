@@ -166,14 +166,16 @@ public class TestGenerator {
         }
     }
 
+    @Test
     public void testFibonacciStatic() {
-        Generator<Integer> fibonacci = Generator.of(TestGenerator::fibonacci);
-        assertEquals(listOf(0, 1, 1, 2, 3, 5, 8, 13), list(limit(8, fibonacci)));
-        assertEquals(listOf(0, 1, 1, 2, 3, 5, 8, 13), list(limit(8, Generator.of(TestGenerator::fibonacci))));
+        try (Generator<Integer> fibonacci = Generator.of(TestGenerator::fibonacci)) {
+            assertEquals(listOf(0, 1, 1, 2, 3, 5, 8, 13), list(limit(8, fibonacci)));
+            assertEquals(listOf(0, 1, 1, 2, 3, 5, 8, 13), list(limit(8, fibonacci)));
+        }
     }
 
-    static Generator<int[]> permutation(int n, int k) {
-        return generate(context -> {
+    static int[][] permutation(int n, int k) {
+        try (Generator<int[]> generator = generate(context -> {
             new Object() {
                 int[] selected = new int[k];
                 boolean[] used = new boolean[n];
@@ -192,31 +194,33 @@ public class TestGenerator {
                         }
                 }
             }.solve(0);
-        });
+        })) {
+            return iny2dArray(generator);
+        }
     }
 
     @Test
     public void testPermutaion() {
-        assertArrayEquals(PERM_0_0, iny2dArray(permutation(0, 0)));
-        assertArrayEquals(PERM_0_1, iny2dArray(permutation(0, 1)));
-        assertArrayEquals(PERM_0_2, iny2dArray(permutation(0, 2)));
-        assertArrayEquals(PERM_0_3, iny2dArray(permutation(0, 3)));
-        assertArrayEquals(PERM_1_0, iny2dArray(permutation(1, 0)));
-        assertArrayEquals(PERM_1_1, iny2dArray(permutation(1, 1)));
-        assertArrayEquals(PERM_1_2, iny2dArray(permutation(1, 2)));
-        assertArrayEquals(PERM_1_3, iny2dArray(permutation(1, 3)));
-        assertArrayEquals(PERM_2_0, iny2dArray(permutation(2, 0)));
-        assertArrayEquals(PERM_2_1, iny2dArray(permutation(2, 1)));
-        assertArrayEquals(PERM_2_2, iny2dArray(permutation(2, 2)));
-        assertArrayEquals(PERM_2_3, iny2dArray(permutation(2, 3)));
-        assertArrayEquals(PERM_3_0, iny2dArray(permutation(3, 0)));
-        assertArrayEquals(PERM_3_1, iny2dArray(permutation(3, 1)));
-        assertArrayEquals(PERM_3_2, iny2dArray(permutation(3, 2)));
-        assertArrayEquals(PERM_3_3, iny2dArray(permutation(3, 3)));
-        assertArrayEquals(PERM_4_0, iny2dArray(permutation(4, 0)));
-        assertArrayEquals(PERM_4_1, iny2dArray(permutation(4, 1)));
-        assertArrayEquals(PERM_4_2, iny2dArray(permutation(4, 2)));
-        assertArrayEquals(PERM_4_3, iny2dArray(permutation(4, 3)));
-        assertArrayEquals(PERM_4_4, iny2dArray(permutation(4, 4)));
+        assertArrayEquals(PERM_0_0, permutation(0, 0));
+        assertArrayEquals(PERM_0_1, permutation(0, 1));
+        assertArrayEquals(PERM_0_2, permutation(0, 2));
+        assertArrayEquals(PERM_0_3, permutation(0, 3));
+        assertArrayEquals(PERM_1_0, permutation(1, 0));
+        assertArrayEquals(PERM_1_1, permutation(1, 1));
+        assertArrayEquals(PERM_1_2, permutation(1, 2));
+        assertArrayEquals(PERM_1_3, permutation(1, 3));
+        assertArrayEquals(PERM_2_0, permutation(2, 0));
+        assertArrayEquals(PERM_2_1, permutation(2, 1));
+        assertArrayEquals(PERM_2_2, permutation(2, 2));
+        assertArrayEquals(PERM_2_3, permutation(2, 3));
+        assertArrayEquals(PERM_3_0, permutation(3, 0));
+        assertArrayEquals(PERM_3_1, permutation(3, 1));
+        assertArrayEquals(PERM_3_2, permutation(3, 2));
+        assertArrayEquals(PERM_3_3, permutation(3, 3));
+        assertArrayEquals(PERM_4_0, permutation(4, 0));
+        assertArrayEquals(PERM_4_1, permutation(4, 1));
+        assertArrayEquals(PERM_4_2, permutation(4, 2));
+        assertArrayEquals(PERM_4_3, permutation(4, 3));
+        assertArrayEquals(PERM_4_4, permutation(4, 4));
     }
 }
