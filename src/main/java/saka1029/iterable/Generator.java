@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.logging.Logger;
@@ -28,18 +27,22 @@ public class Generator<T> implements Iterable<T>, Closeable {
         void accept(Context<T> context) throws InterruptedException;
     }
 
+    public static class EndException extends Exception {
+    }
+
     public static class Context<T> implements Closeable {
 
         final int queSize;
         final Thread thread;
         final Queue<T> que = new LinkedList<>();
-        boolean takeNull = false;
+        boolean done = false;
 
         Context(int queSize, Body<T> body) {
             Runnable runnable = () -> {
                 try {
                     body.accept(this);
-                    this.yield(null);
+                    // this.yield(null);
+                    bodyEnd();
                 } catch (InterruptedException e) {
                     info("Generator.Context: body interrupted");
                 }
@@ -56,32 +59,56 @@ public class Generator<T> implements Iterable<T>, Closeable {
             thread.interrupt();
         }
 
+        synchronized void bodyEnd() {
+            info("Generator.Context.bodyEnd enter");
+            this.done = true;
+            notify();
+            info("Generator.Context.bodyEnd exit");
+        }
+
+        public synchronized boolean done() {
+            info("Generator.Context.done " + done);
+            return done;
+        }
+
         public synchronized void yield(T newValue) throws InterruptedException {
             info("Generator.Context.yield: enter " + str(newValue));
-            if (thread.isInterrupted())
+            if (thread.isInterrupted()) {
+                info("Generator.Context.yield: throw InterruptedException");
                 throw new InterruptedException("Generator.Context.yield: interrupted");
-            while (que.size() >= queSize)
+            }
+            while (que.size() >= queSize) {
+                info("Generator.Context.yield: wait");
                 wait();
+            }
             info("Generator.Context.yield: add " + str(newValue));
             que.add(newValue);
             notify();
         }
 
-        synchronized T take() {
-            info("Generator.Context.take: enter isAlive=" + thread.isAlive()
-                    + " que.size=" + que.size());
-            if (takeNull)
-                throw new NoSuchElementException("No yield element");
-            while (que.size() <= 0)
-                try {
-                    info("Generator.Context.take: wait ");
-                    wait();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+        synchronized T take() throws EndException {
+            info("Generator.Context.take: enter isAlive=" + thread.isAlive() + " que.size=" + que.size());
+            if (done()) {
+                if (que.size() <= 0) {
+                    info("Generator.Context.take: throw EndExcepition");
+                    throw new EndException();
                 }
+            } else
+                while (que.size() <= 0)
+                    try {
+                        if (done()) {
+                            info("Generator.Context.take: throw EndExcepition (before wait)");
+                            throw new EndException();
+                        }
+                        info("Generator.Context.take: wait isInterrupted="
+                            + thread.isInterrupted() + " done=" + done());
+                        wait();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
             T result = que.remove();
-            if (result == null)
-                takeNull = true;
+            // if (result == null)
+            //     takeNull = true;
             info("Generator.Context.take: remove " + str(result));
             notify();
             return result;
@@ -130,8 +157,6 @@ public class Generator<T> implements Iterable<T>, Closeable {
     }
 
     Context<T> context() {
-        if (body == null)
-            throw new IllegalStateException("No body.  Call body() first");
         Context<T> runner = new Context<>(queSize, body);
         runners.add(runner);
         return runner;
@@ -145,7 +170,12 @@ public class Generator<T> implements Iterable<T>, Closeable {
             boolean hasNext = advance();
 
             private boolean advance() {
-                return (next = context.take()) != null;
+                try {
+                    next = context.take();
+                    return true;
+                } catch (EndException e) {
+                    return false;
+                }
             }
 
             @Override

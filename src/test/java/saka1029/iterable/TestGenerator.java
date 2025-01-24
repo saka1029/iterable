@@ -4,7 +4,6 @@ import static saka1029.iterable.TestPermutation.*;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -14,6 +13,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static saka1029.iterable.Iterables.*;
 import org.junit.Test;
+import saka1029.iterable.Generator.EndException;
 
 public class TestGenerator {
 
@@ -62,10 +62,18 @@ public class TestGenerator {
             q.yield(3);
         })) {
             Generator.Context<Integer> context = g.context();
-            assertEquals(1, (int)context.take());
-            assertEquals(0, (int)context.take());
-            assertEquals(3, (int)context.take());
-            assertNull(context.take());
+            try {
+                assertEquals(1, (int)context.take());
+                assertEquals(0, (int)context.take());
+                assertEquals(3, (int)context.take());
+            } catch (EndException e) {
+                fail();
+            }
+            try {
+                assertNull(context.take());
+                fail();
+            } catch (EndException e) {
+            }
         }
     }
 
@@ -77,15 +85,17 @@ public class TestGenerator {
             q.yield(3);
         })) {
             Generator.Context<Integer> context = g.context();
-            assertEquals(1, (int)context.take());
-            assertEquals(0, (int)context.take());
-            assertEquals(3, (int)context.take());
-            assertNull(context.take());
+            try {
+                assertEquals(1, (int)context.take());
+                assertEquals(0, (int)context.take());
+                assertEquals(3, (int)context.take());
+            } catch (EndException e) {
+                fail();
+            }
             try {
                 context.take();
                 fail();
-            } catch (NoSuchElementException e) {
-                assertEquals("No yield element", e.getMessage());
+            } catch (EndException e) {
             }
         }
     }

@@ -100,7 +100,8 @@ public class TestNewGenerator {
             }
 
             synchronized T take() throws EndException {
-                info("Generator.Context.take: enter isAlive=" + thread.isAlive() + " done=" + done() + " que.size=" + que.size());
+                info("Generator.Context.take: enter isAlive=" + thread.isAlive() + " done=" + done()
+                        + " que.size=" + que.size());
                 if (done()) {
                     if (que.size() <= 0) {
                         info("Generator.Context.take: throw EndExcepition");
@@ -113,14 +114,15 @@ public class TestNewGenerator {
                                 info("Generator.Context.take: throw EndExcepition (before wait)");
                                 throw new EndException();
                             }
-                            info("Generator.Context.take: wait isInterrupted=" + thread.isInterrupted() + " done=" + done());
+                            info("Generator.Context.take: wait isInterrupted="
+                                    + thread.isInterrupted() + " done=" + done());
                             wait();
                         } catch (InterruptedException e) {
                             throw new RuntimeException(e);
                         }
                 T result = que.remove();
                 // if (result == null)
-                //     takeNull = true;
+                // takeNull = true;
                 info("Generator.Context.take: remove " + str(result));
                 notify();
                 return result;
@@ -145,11 +147,11 @@ public class TestNewGenerator {
         final Body<T> body;
         List<Context<T>> runners = new ArrayList<>();
 
-    Generator(Body<T> body) {
-        if (body == null)
-            throw new IllegalArgumentException("body");
-        this.body = body;
-    }
+        Generator(Body<T> body) {
+            if (body == null)
+                throw new IllegalArgumentException("body");
+            this.body = body;
+        }
 
         public static <T> Generator<T> of(Body<T> body) {
             return new Generator<>(body);
@@ -222,11 +224,11 @@ public class TestNewGenerator {
         })) {
             Context<Integer> c = g.context();
             try {
-                assertEquals(2, (int)c.take());
+                assertEquals(2, (int) c.take());
                 assertNull(c.take());
-                assertEquals(1, (int)c.take());
+                assertEquals(1, (int) c.take());
                 assertNull(c.take());
-                assertNull(c.take());   // too much
+                assertNull(c.take()); // too much
                 fail();
             } catch (EndException e) {
             }
@@ -242,8 +244,8 @@ public class TestNewGenerator {
         })) {
             Context<Integer> c = g.context();
             try {
-                assertEquals(0, (int)c.take());
-                assertEquals(1, (int)c.take());
+                assertEquals(0, (int) c.take());
+                assertEquals(1, (int) c.take());
             } catch (EndException e) {
             }
         }
@@ -258,9 +260,9 @@ public class TestNewGenerator {
         })) {
             Iterator<Integer> i = g.iterator();
             assertTrue(i.hasNext());
-            assertEquals(0, (int)i.next());
+            assertEquals(0, (int) i.next());
             assertTrue(i.hasNext());
-            assertEquals(1, (int)i.next());
+            assertEquals(1, (int) i.next());
             assertFalse(i.hasNext());
         }
 
@@ -274,7 +276,7 @@ public class TestNewGenerator {
                 c.yield(i);
         })) {
             assertArrayEquals(new int[] {0, 1, 2},
-            g.stream().mapToInt(Integer::intValue).limit(3).toArray());
+                    g.stream().mapToInt(Integer::intValue).limit(3).toArray());
         }
     }
 }
