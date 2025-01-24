@@ -78,6 +78,29 @@ public class TestGenerator {
     }
 
     @Test
+    public void testGeneratorContextYieldNull() {
+        try (Generator<Integer> g = Generator.of(q -> {
+            q.yield(null);
+            q.yield(0);
+            q.yield(null);
+        })) {
+            Generator.Context<Integer> context = g.context();
+            try {
+                assertNull(context.take());
+                assertEquals(0, (int)context.take());
+                assertNull(context.take());
+            } catch (EndException e) {
+                fail();
+            }
+            try {
+                assertNull(context.take());
+                fail();
+            } catch (EndException e) {
+            }
+        }
+    }
+
+    @Test
     public void testGeneratorContextTakeTooMuch() {
         try (Generator<Integer> g = Generator.of(q -> {
             q.yield(1);
@@ -97,6 +120,24 @@ public class TestGenerator {
                 fail();
             } catch (EndException e) {
             }
+        }
+    }
+
+    @Test
+    public void testGeneratorIteratorNull() {
+        try (Generator<Integer> g = Generator.of(q -> {
+            q.yield(null);
+            q.yield(0);
+            q.yield(null);
+        })) {
+            Iterator<Integer> iterator = g.iterator();
+            assertTrue(iterator.hasNext());
+            assertNull(iterator.next());
+            assertTrue(iterator.hasNext());
+            assertEquals(0, (int)iterator.next());
+            assertTrue(iterator.hasNext());
+            assertNull(iterator.next());
+            assertFalse(iterator.hasNext());
         }
     }
 
