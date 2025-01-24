@@ -1,7 +1,10 @@
 package saka1029.iterable;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.Closeable;
@@ -10,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.logging.Logger;
@@ -21,8 +23,11 @@ import org.junit.Test;
 
 import saka1029.Common;
 import saka1029.iterable.TestNewGenerator.Generator.Context;
+import saka1029.iterable.TestNewGenerator.Generator.EndException;
 
 public class TestNewGenerator {
+
+    static Logger logger = Common.logger(TestNewGenerator.class);
 
     public static class Generator<T> implements Iterable<T>, Closeable {
 
@@ -34,6 +39,9 @@ public class TestNewGenerator {
 
         public interface Body<T> {
             void accept(Context<T> context) throws InterruptedException;
+        }
+
+        public static class EndException extends Exception {
         }
 
         public static class Context<T> implements Closeable {
@@ -88,17 +96,17 @@ public class TestNewGenerator {
                 notify();
             }
 
-            synchronized T take() {
+            synchronized T take() throws EndException {
                 info("Generator.Context.take: enter isAlive=" + thread.isAlive() + " done=" + done() + " que.size=" + que.size());
                 if (done()) {
                     if (que.size() <= 0) {
-                        info("Generator.Context.take: throw NoSuchElementException");
-                        throw new NoSuchElementException("No yield element");
+                        info("Generator.Context.take: throw EndExcepition");
+                        throw new EndException();
                     }
                 } else
                     while (que.size() <= 0)
                         try {
-                            info("Generator.Context.take: wait ");
+                            info("Generator.Context.take: wait isInterrupted=" + thread.isInterrupted() + " done=" + done());
                             wait();
                         } catch (InterruptedException e) {
                             throw new RuntimeException(e);
@@ -169,7 +177,12 @@ public class TestNewGenerator {
                 boolean hasNext = advance();
 
                 private boolean advance() {
-                    return (next = context.take()) != null;
+                    try {
+                        next = context.take();
+                        return true;
+                    } catch (EndException e) {
+                        return false;
+                    }
                 }
 
                 @Override
@@ -193,6 +206,7 @@ public class TestNewGenerator {
 
     @Test
     public void testGeneratorTake() {
+        logger.info("*** " + Common.methodName());
         try (Generator<Integer> g = Generator.of(c -> {
             c.yield(2);
             c.yield(null);
@@ -200,28 +214,60 @@ public class TestNewGenerator {
             c.yield(null);
         })) {
             Context<Integer> c = g.context();
-            assertEquals(2, (int)c.take());
-            assertNull(c.take());
-            assertEquals(1, (int)c.take());
-            assertNull(c.take());
             try {
+                assertEquals(2, (int)c.take());
+                assertNull(c.take());
+                assertEquals(1, (int)c.take());
+                assertNull(c.take());
                 assertNull(c.take());
                 fail();
-            } catch (NoSuchElementException e) {
-                assertEquals("No yield element", e.getMessage());
+            } catch (EndException e) {
             }
         }
     }
 
     @Test
     public void testGeneratorBreak() {
+        logger.info("*** " + Common.methodName());
         try (Generator<Integer> g = Generator.of(c -> {
             for (int i = 0; i < 1000; ++i)
                 c.yield(i);
         })) {
             Context<Integer> c = g.context();
-            assertEquals(0, (int)c.take());
-            assertEquals(1, (int)c.take());
+            try {
+                assertEquals(0, (int)c.take());
+                assertEquals(1, (int)c.take());
+            } catch (EndException e) {
+            }
+        }
+    }
+
+    @Test
+    public void testIterator() throws EndException {
+        logger.info("*** " + Common.methodName());
+        try (Generator<Integer> g = Generator.of(c -> {
+            c.yield(0);
+            c.yield(1);
+        })) {
+            Iterator<Integer> i = g.iterator();
+            assertTrue(i.hasNext());
+            assertEquals(0, (int)i.next());
+            assertTrue(i.hasNext());
+            assertEquals(1, (int)i.next());
+            assertFalse(i.hasNext());
+        }
+
+    }
+
+    @Test
+    public void testStreamFilter() {
+        logger.info("*** " + Common.methodName());
+        try (Generator<Integer> g = Generator.of(c -> {
+            for (int i = 0; i < 10; ++i)
+                c.yield(i);
+        })) {
+            assertArrayEquals(new int[] {0, 1, 2},
+            g.stream().mapToInt(Integer::intValue).limit(3).toArray());
         }
     }
 }
