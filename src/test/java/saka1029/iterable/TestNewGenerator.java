@@ -55,7 +55,6 @@ public class TestNewGenerator {
                 Runnable runnable = () -> {
                     try {
                         body.accept(this);
-                        // this.yield(null);
                         bodyEnd();
                     } catch (InterruptedException e) {
                         info("Generator.Context: body interrupted");
@@ -74,11 +73,15 @@ public class TestNewGenerator {
             }
 
             synchronized void bodyEnd() {
+                info("Generator.Context.bodyEnd enter");
                 this.done = true;
+                notify();
+                info("Generator.Context.bodyEnd exit");
             }
 
             public synchronized boolean done() {
-                return this.done;
+                info("Generator.Context.done " + done);
+                return done;
             }
 
             public synchronized void yield(T newValue) throws InterruptedException {
@@ -106,6 +109,10 @@ public class TestNewGenerator {
                 } else
                     while (que.size() <= 0)
                         try {
+                            if (done()) {
+                                info("Generator.Context.take: throw EndExcepition (before wait)");
+                                throw new EndException();
+                            }
                             info("Generator.Context.take: wait isInterrupted=" + thread.isInterrupted() + " done=" + done());
                             wait();
                         } catch (InterruptedException e) {
@@ -205,7 +212,7 @@ public class TestNewGenerator {
     }
 
     @Test
-    public void testGeneratorTake() {
+    public void testGeneratorTakeTooMuch() {
         logger.info("*** " + Common.methodName());
         try (Generator<Integer> g = Generator.of(c -> {
             c.yield(2);
@@ -219,7 +226,7 @@ public class TestNewGenerator {
                 assertNull(c.take());
                 assertEquals(1, (int)c.take());
                 assertNull(c.take());
-                assertNull(c.take());
+                assertNull(c.take());   // too much
                 fail();
             } catch (EndException e) {
             }
