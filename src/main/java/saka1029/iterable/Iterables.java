@@ -425,7 +425,7 @@ public class Iterables {
         return stream(source).toArray(constructor);
     }
 
-    public static int[][] iny2dArray(Iterable<int[]> source) {
+    public static int[][] int2dArray(Iterable<int[]> source) {
         return stream(source).toArray(int[][]::new);
     }
 

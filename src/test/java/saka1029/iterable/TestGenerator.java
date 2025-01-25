@@ -184,18 +184,17 @@ public class TestGenerator {
                     if (i >= k)
                         context.yield(selected.clone());
                     else
-                        for (int j = 0; j < n; ++j) {
+                        for (int j = 0; j < n; ++j)
                             if (!used[j]) {
                                 used[j] = true;
                                 selected[i] = j;
                                 solve(i + 1);
                                 used[j] = false;
                             }
-                        }
                 }
             }.solve(0);
         })) {
-            return iny2dArray(generator);
+            return int2dArray(generator);
         }
     }
 

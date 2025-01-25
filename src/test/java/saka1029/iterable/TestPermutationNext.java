@@ -92,27 +92,27 @@ public class TestPermutationNext {
 
     @Test
     public void testIterable() {
-        assertArrayEquals(PERM_0_0, iny2dArray(iterable(0, 0)));
-        assertArrayEquals(PERM_0_1, iny2dArray(iterable(0, 1)));
-        assertArrayEquals(PERM_0_2, iny2dArray(iterable(0, 2)));
-        assertArrayEquals(PERM_0_3, iny2dArray(iterable(0, 3)));
-        assertArrayEquals(PERM_1_0, iny2dArray(iterable(1, 0)));
-        assertArrayEquals(PERM_1_1, iny2dArray(iterable(1, 1)));
-        assertArrayEquals(PERM_1_2, iny2dArray(iterable(1, 2)));
-        assertArrayEquals(PERM_1_3, iny2dArray(iterable(1, 3)));
-        assertArrayEquals(PERM_2_0, iny2dArray(iterable(2, 0)));
-        assertArrayEquals(PERM_2_1, iny2dArray(iterable(2, 1)));
-        assertArrayEquals(PERM_2_2, iny2dArray(iterable(2, 2)));
-        assertArrayEquals(PERM_2_3, iny2dArray(iterable(2, 3)));
-        assertArrayEquals(PERM_3_0, iny2dArray(iterable(3, 0)));
-        assertArrayEquals(PERM_3_1, iny2dArray(iterable(3, 1)));
-        assertArrayEquals(PERM_3_2, iny2dArray(iterable(3, 2)));
-        assertArrayEquals(PERM_3_3, iny2dArray(iterable(3, 3)));
-        assertArrayEquals(PERM_4_0, iny2dArray(iterable(4, 0)));
-        assertArrayEquals(PERM_4_1, iny2dArray(iterable(4, 1)));
-        assertArrayEquals(PERM_4_2, iny2dArray(iterable(4, 2)));
-        assertArrayEquals(PERM_4_3, iny2dArray(iterable(4, 3)));
-        assertArrayEquals(PERM_4_4, iny2dArray(iterable(4, 4)));
+        assertArrayEquals(PERM_0_0, int2dArray(iterable(0, 0)));
+        assertArrayEquals(PERM_0_1, int2dArray(iterable(0, 1)));
+        assertArrayEquals(PERM_0_2, int2dArray(iterable(0, 2)));
+        assertArrayEquals(PERM_0_3, int2dArray(iterable(0, 3)));
+        assertArrayEquals(PERM_1_0, int2dArray(iterable(1, 0)));
+        assertArrayEquals(PERM_1_1, int2dArray(iterable(1, 1)));
+        assertArrayEquals(PERM_1_2, int2dArray(iterable(1, 2)));
+        assertArrayEquals(PERM_1_3, int2dArray(iterable(1, 3)));
+        assertArrayEquals(PERM_2_0, int2dArray(iterable(2, 0)));
+        assertArrayEquals(PERM_2_1, int2dArray(iterable(2, 1)));
+        assertArrayEquals(PERM_2_2, int2dArray(iterable(2, 2)));
+        assertArrayEquals(PERM_2_3, int2dArray(iterable(2, 3)));
+        assertArrayEquals(PERM_3_0, int2dArray(iterable(3, 0)));
+        assertArrayEquals(PERM_3_1, int2dArray(iterable(3, 1)));
+        assertArrayEquals(PERM_3_2, int2dArray(iterable(3, 2)));
+        assertArrayEquals(PERM_3_3, int2dArray(iterable(3, 3)));
+        assertArrayEquals(PERM_4_0, int2dArray(iterable(4, 0)));
+        assertArrayEquals(PERM_4_1, int2dArray(iterable(4, 1)));
+        assertArrayEquals(PERM_4_2, int2dArray(iterable(4, 2)));
+        assertArrayEquals(PERM_4_3, int2dArray(iterable(4, 3)));
+        assertArrayEquals(PERM_4_4, int2dArray(iterable(4, 4)));
     }
 
 }

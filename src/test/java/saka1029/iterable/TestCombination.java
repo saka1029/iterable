@@ -68,28 +68,28 @@ public class TestCombination {
 
     @Test
     public void testIterable() {
-        assertArrayEquals(COMB_0_0, iny2dArray(combination(0, 0)));
-        assertArrayEquals(COMB_0_1, iny2dArray(combination(0, 1)));
-        assertArrayEquals(COMB_0_2, iny2dArray(combination(0, 2)));
-        assertArrayEquals(COMB_0_3, iny2dArray(combination(0, 3)));
-        assertArrayEquals(COMB_1_0, iny2dArray(combination(1, 0)));
-        assertArrayEquals(COMB_1_1, iny2dArray(combination(1, 1)));
-        assertArrayEquals(COMB_1_2, iny2dArray(combination(1, 2)));
-        assertArrayEquals(COMB_1_3, iny2dArray(combination(1, 3)));
-        assertArrayEquals(COMB_2_0, iny2dArray(combination(2, 0)));
-        assertArrayEquals(COMB_2_1, iny2dArray(combination(2, 1)));
-        assertArrayEquals(COMB_2_2, iny2dArray(combination(2, 2)));
-        assertArrayEquals(COMB_2_3, iny2dArray(combination(2, 3)));
-        assertArrayEquals(COMB_3_0, iny2dArray(combination(3, 0)));
-        assertArrayEquals(COMB_3_1, iny2dArray(combination(3, 1)));
-        assertArrayEquals(COMB_3_2, iny2dArray(combination(3, 2)));
-        assertArrayEquals(COMB_3_3, iny2dArray(combination(3, 3)));
-        assertArrayEquals(COMB_4_0, iny2dArray(combination(4, 0)));
-        assertArrayEquals(COMB_4_1, iny2dArray(combination(4, 1)));
-        assertArrayEquals(COMB_4_2, iny2dArray(combination(4, 2)));
-        assertArrayEquals(COMB_4_3, iny2dArray(combination(4, 3)));
-        assertArrayEquals(COMB_4_4, iny2dArray(combination(4, 4)));
-        assertArrayEquals(COMB_4_5, iny2dArray(combination(4, 5)));
+        assertArrayEquals(COMB_0_0, int2dArray(combination(0, 0)));
+        assertArrayEquals(COMB_0_1, int2dArray(combination(0, 1)));
+        assertArrayEquals(COMB_0_2, int2dArray(combination(0, 2)));
+        assertArrayEquals(COMB_0_3, int2dArray(combination(0, 3)));
+        assertArrayEquals(COMB_1_0, int2dArray(combination(1, 0)));
+        assertArrayEquals(COMB_1_1, int2dArray(combination(1, 1)));
+        assertArrayEquals(COMB_1_2, int2dArray(combination(1, 2)));
+        assertArrayEquals(COMB_1_3, int2dArray(combination(1, 3)));
+        assertArrayEquals(COMB_2_0, int2dArray(combination(2, 0)));
+        assertArrayEquals(COMB_2_1, int2dArray(combination(2, 1)));
+        assertArrayEquals(COMB_2_2, int2dArray(combination(2, 2)));
+        assertArrayEquals(COMB_2_3, int2dArray(combination(2, 3)));
+        assertArrayEquals(COMB_3_0, int2dArray(combination(3, 0)));
+        assertArrayEquals(COMB_3_1, int2dArray(combination(3, 1)));
+        assertArrayEquals(COMB_3_2, int2dArray(combination(3, 2)));
+        assertArrayEquals(COMB_3_3, int2dArray(combination(3, 3)));
+        assertArrayEquals(COMB_4_0, int2dArray(combination(4, 0)));
+        assertArrayEquals(COMB_4_1, int2dArray(combination(4, 1)));
+        assertArrayEquals(COMB_4_2, int2dArray(combination(4, 2)));
+        assertArrayEquals(COMB_4_3, int2dArray(combination(4, 3)));
+        assertArrayEquals(COMB_4_4, int2dArray(combination(4, 4)));
+        assertArrayEquals(COMB_4_5, int2dArray(combination(4, 5)));
     }
 
     @Test(expected = IllegalArgumentException.class)

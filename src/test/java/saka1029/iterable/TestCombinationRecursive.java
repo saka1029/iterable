@@ -1,6 +1,7 @@
 package saka1029.iterable;
 
 import static org.junit.Assert.assertArrayEquals;
+import static saka1029.iterable.TestCombination.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -60,23 +61,6 @@ public class TestCombinationRecursive {
         return r;
     }
 
-    static final int[][] COMB_0_0 = {{}};
-    static final int[][] COMB_0_1 = {};
-    static final int[][] COMB_0_2 = {};
-    static final int[][] COMB_0_3 = {};
-    static final int[][] COMB_1_0 = {{}};
-    static final int[][] COMB_1_1 = {{0}};
-    static final int[][] COMB_1_2 = {};
-    static final int[][] COMB_1_3 = {};
-    static final int[][] COMB_2_0 = {{}};
-    static final int[][] COMB_2_1 = {{0}, {1}};
-    static final int[][] COMB_2_2 = {{0, 1}};
-    static final int[][] COMB_2_3 = {};
-    static final int[][] COMB_3_0 = {{}};
-    static final int[][] COMB_3_1 = {{0}, {1}, {2}};
-    static final int[][] COMB_3_2 = {{0, 1}, {0, 2}, {1, 2}};
-    static final int[][] COMB_3_3 = {{0, 1, 2}};
-
     @Test
     public void testCombination() {
         assertArrayEquals(COMB_0_0, combination(0, 0));
@@ -95,6 +79,12 @@ public class TestCombinationRecursive {
         assertArrayEquals(COMB_3_1, combination(3, 1));
         assertArrayEquals(COMB_3_2, combination(3, 2));
         assertArrayEquals(COMB_3_3, combination(3, 3));
+        assertArrayEquals(COMB_4_0, combination(4, 0));
+        assertArrayEquals(COMB_4_1, combination(4, 1));
+        assertArrayEquals(COMB_4_2, combination(4, 2));
+        assertArrayEquals(COMB_4_3, combination(4, 3));
+        assertArrayEquals(COMB_4_4, combination(4, 4));
+        assertArrayEquals(COMB_4_5, combination(4, 5));
     }
 
 }
