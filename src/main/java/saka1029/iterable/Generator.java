@@ -157,8 +157,8 @@ public class Generator<T> implements Iterable<T>, Closeable {
         for (Context<T> e : runners)
             try {
                 e.thread.join();
-            } catch (InterruptedException e1) {
-                e1.printStackTrace();
+            } catch (InterruptedException x) {
+                throw new RuntimeException(x);
             }
         info("Generator.close: end");
     }
