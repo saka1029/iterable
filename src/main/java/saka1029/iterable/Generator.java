@@ -154,6 +154,13 @@ public class Generator<T> implements Iterable<T>, Closeable {
     public void close() {
         for (Context<T> e : runners)
             e.close();
+        for (Context<T> e : runners)
+            try {
+                e.thread.join();
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
+            }
+        info("Generator.close: end");
     }
 
     Context<T> context() {
