@@ -386,6 +386,50 @@ public class Iterables {
         };
     }
 
+    public static <T> Iterable<T> dropWhile(Predicate<T> predicate, Iterable<T> source) {
+        return () -> new Iterator<>() {
+            Iterator<T> iterator = source.iterator();
+            {
+                while (iterator.hasNext() && predicate.test(iterator.next()))
+                    /* do nothing */;
+            }
+
+            @Override
+            public boolean hasNext() {
+                return iterator.hasNext();
+            }
+
+            @Override
+            public T next() {
+                return iterator.next();
+            }
+        };
+    }
+
+    public static <T> Iterable<T> takeWhile(Predicate<T> predicate, Iterable<T> source) {
+        return () -> new Iterator<>() {
+            Iterator<T> iterator = source.iterator();
+            boolean hasNext = advance();
+            T next;
+
+            private boolean advance() {
+                return iterator.hasNext() && predicate.test(next = iterator.next());
+            }
+
+            @Override
+            public boolean hasNext() {
+                return hasNext;
+            }
+
+            @Override
+            public T next() {
+                T result = next;
+                hasNext = advance();
+                return result;
+            }
+        };
+    }
+
     public static <T> Iterable<T> distinct(Iterable<T> source) {
         Set<T> set = new LinkedHashSet<>();
         for (T e : source)
