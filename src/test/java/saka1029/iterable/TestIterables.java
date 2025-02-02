@@ -110,6 +110,30 @@ public class TestIterables {
     }
 
     @Test
+    public void testIterate() {
+        assertEquals(intListOf(0, 1, 1, 2, 3, 5, 8, 13, 21, 34),
+            list(
+                limit(10,
+                    map(a -> a[0],
+                        iterate(new int[] {0, 1}, a -> new int[] {a[1], a[0] + a[1]})))));
+    }
+
+    @Test
+    public void testIterateUpdate() {
+        assertEquals(intListOf(0, 1, 1, 2, 3, 5, 8, 13, 21, 34),
+            list(
+                limit(10,
+                    map(a -> a[0],
+                        iterate(new int[] {0, 1},
+                            a -> {
+                                int t = a[0] + a[1];
+                                a[0] = a[1];
+                                a[1] = t;
+                                return a;
+                            })))));
+    }
+
+    @Test
     public void testMap() {
         assertEquals(listOf(10, 20, 30),
             list(

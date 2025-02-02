@@ -13,6 +13,7 @@ import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -88,6 +89,27 @@ public class Iterables {
 
     public static <T> Iterable<T> iterable(Supplier<Stream<T>> source) {
         return () -> source.get().iterator();
+    }
+
+    public static <T> Iterable<T> iterate(T unit, UnaryOperator<T> operator) {
+        return () -> new Iterator<>() {
+            T e = unit;
+            boolean first = true;
+
+            @Override
+            public boolean hasNext() {
+                return true;
+            }
+
+            @Override
+            public T next() {
+                if (first) {
+                    first = false;
+                    return e;
+                }
+                return e = operator.apply(e);
+            }
+        };
     }
 
     /**
