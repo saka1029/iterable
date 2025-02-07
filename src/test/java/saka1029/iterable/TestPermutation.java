@@ -1,6 +1,9 @@
 package saka1029.iterable;
 
 import static saka1029.iterable.Iterables.*;
+
+import java.util.Arrays;
+
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
@@ -197,5 +200,30 @@ public class TestPermutation {
         long start = System.currentTimeMillis();
         int count = solve();
         System.err.printf("solutions: " + count + ", elapse: %d msec.%n", System.currentTimeMillis() - start);
+    }
+
+    @Test
+    public void testSendMoreMoney() {
+        int[] ans = null;
+        for (int[] a : permutation(10, 8))
+            if (a[0] != 0 && a[4] != 0
+                && n(a[0], a[1], a[2], a[3])
+                + n(a[4], a[5], a[6], a[1])
+                == n(a[4], a[5], a[2], a[1], a[7]))
+                ans = a;
+        assertArrayEquals(new int[] {9, 5, 6, 7, 1, 0, 8, 2}, ans);
+    }
+
+    /**
+     * YouTube: "Scary" homework problem is impossibly hard
+     * https://www.youtube.com/watch?v=npyvj3klg38
+     */
+    @Test
+    public void test10Digits() {
+        for (int[] a : permutation(10, 10))
+            if (a[0] + a[1] - a[2] == a[3]
+                && a[4] - a[5] == a[6]
+                && a[7] + a[8] == a[9])
+                System.out.println(Arrays.toString(a));
     }
 }
