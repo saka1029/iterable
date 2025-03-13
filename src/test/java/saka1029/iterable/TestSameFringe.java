@@ -1,6 +1,5 @@
 package saka1029.iterable;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -8,6 +7,13 @@ import java.util.List;
 import org.junit.Test;
 import saka1029.iterable.Generator.Context;
 
+/**
+ * same fringe test
+ * https://wiki.c2.com/?SameFringeProblem
+ * 以下のツリーが同一であるかことを
+ * 判別する。
+ * (1 (2 3)), ((1 2) 3)
+ */
 public class TestSameFringe {
 
     interface Tree {
