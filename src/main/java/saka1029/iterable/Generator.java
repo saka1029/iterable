@@ -27,7 +27,7 @@ public class Generator<T> implements Iterable<T>, Closeable {
         void accept(Context<T> context) throws InterruptedException;
     }
 
-    public static class EndException extends Exception {
+    public static class EndException extends RuntimeException {
     }
 
     public static class Context<T> implements Closeable {
