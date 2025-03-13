@@ -113,6 +113,8 @@ public class TestSameFringe {
         System.out.println("t1 = " + t1);
         System.out.println("t2 = " + t2);
         assertTrue(same_fringe(t1, t2));
+        Tree t3 = node(leaf(1), node(leaf(2), node(leaf(3), leaf(4))));
+        assertFalse(same_fringe(t1, t3));
     }
 
     static void gen(Context<Integer> c, Tree tree) throws InterruptedException {
