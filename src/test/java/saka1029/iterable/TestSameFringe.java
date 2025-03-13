@@ -1,7 +1,9 @@
 package saka1029.iterable;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import org.junit.Test;
 import saka1029.iterable.Generator.Context;
@@ -104,5 +106,33 @@ public class TestSameFringe {
         System.out.println("t1 = " + t1);
         System.out.println("t2 = " + t2);
         assertTrue(same_fringe(t1, t2));
+    }
+
+    static void gen(Context<Integer> c, Tree tree) throws InterruptedException {
+        if (tree instanceof Leaf leaf)
+            c.yield(leaf.value);
+        else if (tree instanceof Node node) {
+            gen(c, node.left);
+            gen(c, node.right);
+        }
+    }
+
+    static boolean same_fringe_by_iterator(Tree tree1, Tree tree2) {
+        try (Generator<Integer> g1 = Generator.of(c -> gen(c, tree1));
+            Generator<Integer> g2 = Generator.of(c -> gen(c, tree2))) {
+            Iterator<Integer> i1 = g1.iterator();
+            Iterator<Integer> i2 = g1.iterator();
+            while (i1.hasNext() && i2.hasNext())
+                if (!i1.next().equals(i2.next()))
+                    return false;
+            return true;
+        }
+    }
+
+    @Test
+    public void testSameFringeByIterator() {
+        Tree t1 = node(node(leaf(1), leaf(2)), leaf(3));
+        Tree t2 = node(leaf(1), node(leaf(2), leaf(3)));
+        assertTrue(same_fringe_by_iterator(t1, t2));
     }
 }
