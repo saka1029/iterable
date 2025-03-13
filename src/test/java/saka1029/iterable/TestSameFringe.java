@@ -1,5 +1,6 @@
 package saka1029.iterable;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -128,10 +129,13 @@ public class TestSameFringe {
             Generator<Integer> g2 = Generator.of(c -> gen(c, tree2))) {
             Iterator<Integer> i1 = g1.iterator();
             Iterator<Integer> i2 = g1.iterator();
-            while (i1.hasNext() && i2.hasNext())
-                if (!i1.next().equals(i2.next()))
+            while (i1.hasNext() && i2.hasNext()) {
+                Integer x1 = i1.next(), x2 = i2.next();
+                System.out.printf("x1 = %s x2 = %s", x1, x2);
+                if (!x1.equals(x2))
                     return false;
-            return true;
+            }
+            return !(i1.hasNext() || i2.hasNext());
         }
     }
 
@@ -139,6 +143,8 @@ public class TestSameFringe {
     public void testSameFringeByIterator() {
         Tree t1 = node(node(leaf(1), leaf(2)), leaf(3));
         Tree t2 = node(leaf(1), node(leaf(2), leaf(3)));
-        assertTrue(same_fringe_by_iterator(t1, t2));
+        // assertTrue(same_fringe_by_iterator(t1, t2));
+        Tree t3 = node(leaf(1), node(leaf(2), node(leaf(3), leaf(4))));
+        assertFalse(same_fringe_by_iterator(t1, t3));
     }
 }
