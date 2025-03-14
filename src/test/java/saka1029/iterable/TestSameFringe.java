@@ -97,7 +97,7 @@ public class TestSameFringe {
             Context<Integer> c1 = g1.context(), c2 = g2.context();
             while (true) {
                 Integer tmp1 = c1.take(), tmp2 = c2.take();
-                System.out.printf("tmp1=%s tmp2=%s", tmp1, tmp2);
+                System.out.printf("tmp1=%s tmp2=%s%n", tmp1, tmp2);
                 if (tmp1 != tmp2)
                     return false;
                 if (tmp1 == null && tmp2 == null)
@@ -132,7 +132,7 @@ public class TestSameFringe {
             System.out.printf("g1=%s%n", g1.stream().toList());
             System.out.printf("g2=%s%n", g2.stream().toList());
             Iterator<Integer> i1 = g1.iterator();
-            Iterator<Integer> i2 = g1.iterator();
+            Iterator<Integer> i2 = g2.iterator();
             while (i1.hasNext() && i2.hasNext()) {
                 Integer x1 = i1.next(), x2 = i2.next();
                 System.out.printf("x1 = %s x2 = %s%n", x1, x2);
