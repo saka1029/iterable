@@ -129,11 +129,13 @@ public class TestSameFringe {
     static boolean same_fringe_by_iterator(Tree tree1, Tree tree2) {
         try (Generator<Integer> g1 = Generator.of(c -> gen(c, tree1));
             Generator<Integer> g2 = Generator.of(c -> gen(c, tree2))) {
+            System.out.printf("g1=%s%n", g1.stream().toList());
+            System.out.printf("g2=%s%n", g2.stream().toList());
             Iterator<Integer> i1 = g1.iterator();
             Iterator<Integer> i2 = g1.iterator();
             while (i1.hasNext() && i2.hasNext()) {
                 Integer x1 = i1.next(), x2 = i2.next();
-                System.out.printf("x1 = %s x2 = %s", x1, x2);
+                System.out.printf("x1 = %s x2 = %s%n", x1, x2);
                 if (!x1.equals(x2))
                     return false;
             }
