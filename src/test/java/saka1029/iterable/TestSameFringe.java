@@ -2,7 +2,6 @@ package saka1029.iterable;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -50,108 +49,6 @@ public class TestSameFringe {
         public String toString() {
             return "(%s %s)".formatted(left, right);
         }
-    }
-
-    static Node node(Tree left, Tree right) {
-        return new Node(left, right);
-    }
-
-    static List<Integer> list(Tree tree) {
-        List<Integer> result = new ArrayList<>();
-        new Object() {
-            void visit(Tree t) {
-                if (t instanceof Leaf leaf)
-                    result.add(leaf.value);
-                else if (t instanceof Node node) {
-                    visit(node.left);
-                    visit(node.right);
-                }
-            }
-        }.visit(tree);
-        return result;
-    }
-
-    static Leaf leaf(int value) {
-        return new Leaf(value);
-    }
-
-    @Test
-    public void testTree() {
-        Tree tree = node(node(leaf(1), leaf(2)), leaf(3));
-        System.out.println(tree);
-        System.out.println(list(tree));
-    }
-
-    static void tree_leaves(Tree t, Context<Integer> c) throws InterruptedException {
-        tree_leaves_sub(t, c);
-        c.yield(null);
-    }
-
-    static void tree_leaves_sub(Tree t, Context<Integer> c) throws InterruptedException {
-        if (t instanceof Leaf leaf)
-            c.yield(leaf.value);
-        else if (t instanceof Node node) {
-            tree_leaves_sub(node.left, c);
-            tree_leaves_sub(node.right, c);
-        }
-    }
-
-    static boolean same_fringe(Tree tree1, Tree tree2) {
-        try (Generator<Integer> g1 = Generator.of(c -> tree_leaves(tree1, c));
-            Generator<Integer> g2 = Generator.of(c -> tree_leaves(tree2, c))) {
-            Context<Integer> c1 = g1.context(), c2 = g2.context();
-            while (true) {
-                Integer tmp1 = c1.take(), tmp2 = c2.take();
-                System.out.printf("tmp1=%s tmp2=%s%n", tmp1, tmp2);
-                if (tmp1 != tmp2)
-                    return false;
-                if (tmp1 == null && tmp2 == null)
-                    return true;
-            }
-        }
-    }
-
-    @Test
-    public void testSameFringeByGenerator() {
-        Tree t1 = node(node(leaf(1), leaf(2)), leaf(3));
-        Tree t2 = node(leaf(1), node(leaf(2), leaf(3)));
-        System.out.println("t1 = " + t1);
-        System.out.println("t2 = " + t2);
-        assertTrue(same_fringe(t1, t2));
-        Tree t3 = node(leaf(1), node(leaf(2), node(leaf(3), leaf(4))));
-        assertFalse(same_fringe(t1, t3));
-    }
-
-    static void traverse(Context<Integer> c, Tree tree) throws InterruptedException {
-        if (tree instanceof Leaf leaf)
-            c.yield(leaf.value);
-        else if (tree instanceof Node node) {
-            traverse(c, node.left);
-            traverse(c, node.right);
-        }
-    }
-
-    static boolean same_fringe_by_iterator(Tree tree1, Tree tree2) {
-        try (Generator<Integer> g1 = Generator.of(c -> traverse(c, tree1));
-            Generator<Integer> g2 = Generator.of(c -> traverse(c, tree2))) {
-            Iterator<Integer> i1 = g1.iterator(), i2 = g2.iterator();
-            while (i1.hasNext() && i2.hasNext())
-                if (!i1.next().equals(i2.next()))
-                    return false;
-            return !(i1.hasNext() || i2.hasNext());
-        }
-    }
-
-    @Test
-    public void testSameFringeByIterator() {
-        Tree t1 = node(node(leaf(1), leaf(2)), leaf(3));
-        Tree t2 = node(leaf(1), node(leaf(2), leaf(3)));
-        assertTrue(same_fringe_by_iterator(t1, t2));
-        Tree t3 = node(leaf(1), node(leaf(2), node(leaf(3), leaf(4))));
-        assertFalse(same_fringe_by_iterator(t1, t3));
-        Tree t4 = node(leaf(1), node(leaf(2), node(leaf(3), leaf(4))));
-        Tree t5 = node(node(node(leaf(1), leaf(2)), leaf(3)), leaf(4));
-        assertTrue(same_fringe_by_iterator(t4, t5));
     }
 
     /**
@@ -211,6 +108,100 @@ public class TestSameFringe {
         }.tree();
     }
 
+    static List<Integer> list(Tree tree) {
+        List<Integer> result = new ArrayList<>();
+        new Object() {
+            void visit(Tree t) {
+                if (t instanceof Leaf leaf)
+                    result.add(leaf.value);
+                else if (t instanceof Node node) {
+                    visit(node.left);
+                    visit(node.right);
+                }
+            }
+        }.visit(tree);
+        return result;
+    }
+
+    @Test
+    public void testTree() {
+        Tree tree = parse("((1 2) 3)");
+        System.out.println(tree);
+        System.out.println(list(tree));
+    }
+
+    static void tree_leaves(Tree t, Context<Integer> c) throws InterruptedException {
+        tree_leaves_sub(t, c);
+        c.yield(null);
+    }
+
+    static void tree_leaves_sub(Tree t, Context<Integer> c) throws InterruptedException {
+        if (t instanceof Leaf leaf)
+            c.yield(leaf.value);
+        else if (t instanceof Node node) {
+            tree_leaves_sub(node.left, c);
+            tree_leaves_sub(node.right, c);
+        }
+    }
+
+    static boolean same_fringe(Tree tree1, Tree tree2) {
+        try (Generator<Integer> g1 = Generator.of(c -> tree_leaves(tree1, c));
+            Generator<Integer> g2 = Generator.of(c -> tree_leaves(tree2, c))) {
+            Context<Integer> c1 = g1.context(), c2 = g2.context();
+            while (true) {
+                Integer tmp1 = c1.take(), tmp2 = c2.take();
+                System.out.printf("tmp1=%s tmp2=%s%n", tmp1, tmp2);
+                if (tmp1 != tmp2)
+                    return false;
+                if (tmp1 == null && tmp2 == null)
+                    return true;
+            }
+        }
+    }
+
+    @Test
+    public void testSameFringeByGenerator() {
+        Tree t1 = parse("((1 2) 3)");
+        Tree t2 = parse("(1 (2 3))");
+        System.out.println("t1 = " + t1);
+        System.out.println("t2 = " + t2);
+        assertTrue(same_fringe(t1, t2));
+        Tree t3 = parse("(1 (2 (3 4)))");
+        assertFalse(same_fringe(t1, t3));
+    }
+
+    static void traverse(Context<Integer> c, Tree tree) throws InterruptedException {
+        if (tree instanceof Leaf leaf)
+            c.yield(leaf.value);
+        else if (tree instanceof Node node) {
+            traverse(c, node.left);
+            traverse(c, node.right);
+        }
+    }
+
+    static boolean same_fringe_by_iterator(Tree tree1, Tree tree2) {
+        try (Generator<Integer> g1 = Generator.of(c -> traverse(c, tree1));
+            Generator<Integer> g2 = Generator.of(c -> traverse(c, tree2))) {
+            Iterator<Integer> i1 = g1.iterator(), i2 = g2.iterator();
+            while (i1.hasNext() && i2.hasNext())
+                if (!i1.next().equals(i2.next()))
+                    return false;
+            return !(i1.hasNext() || i2.hasNext());
+        }
+    }
+
+    @Test
+    public void testSameFringeByIterator() {
+        Tree t1 = parse("((1 2) 3)");
+        Tree t2 = parse("(1 (2 3))");
+        assertTrue(same_fringe_by_iterator(t1, t2));
+        Tree t3 = parse("(1 (2 (3 4)))");
+        assertFalse(same_fringe_by_iterator(t1, t3));
+        Tree t4 = parse("(1 (2 (3 4)))");
+        Tree t5 = parse("(((1 2) 3) 4)");
+        assertTrue(same_fringe_by_iterator(t4, t5));
+    }
+
     @Test
     public void testParse() {
         assertEquals("(1 (2 (3 4)))", parse("(  1 (  2 (  3   4  )  )  )").toString());
@@ -248,6 +239,13 @@ public class TestSameFringe {
         };
     }
 
+    static <T> boolean compare(Iterator<T> left, Iterator<T> right) {
+        while (left.hasNext() && right.hasNext())
+            if (!left.next().equals(right.next()))
+                return false;
+        return !left.hasNext() && !right.hasNext();
+    }
+
     static Iterable<Integer> iterable(Tree tree) {
         return () -> iterator(tree);
     }
@@ -268,5 +266,12 @@ public class TestSameFringe {
         assertEquals(3, (int)i2.next());
         assertEquals(4, (int)i2.next());
         assertFalse(i2.hasNext());
+    }
+
+    @Test
+    public void testCompare() {
+        Tree root1 = parse("(((1 2) 3) 4)");
+        Tree root2 = parse("(1 (2 (3 4)))");
+        assertTrue(compare(iterator(root1), iterator(root2)));
     }
 }
