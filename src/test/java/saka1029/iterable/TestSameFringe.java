@@ -232,9 +232,9 @@ public class TestSameFringe {
 
         @Override
         public Iterator<Integer> iterator() {
+            final Deque<Tree> que = new LinkedList<>();
+            que.push(root);
             return new Iterator<>() {
-                final Deque<Tree> que = new LinkedList<>();
-                { que.push(root); }
 
                 @Override
                 public boolean hasNext() {
