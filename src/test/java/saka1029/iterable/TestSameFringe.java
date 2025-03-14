@@ -85,10 +85,8 @@ public class TestSameFringe {
 
             Leaf number() {
                 int value = 0;
-                while (Character.isDigit(ch)) {
+                for ( ; Character.isDigit(ch); get())
                     value = value * 10 + Character.digit(ch, 10);
-                    get();
-                }
                 return new Leaf(value);
             }
 
@@ -239,7 +237,7 @@ public class TestSameFringe {
         };
     }
 
-    static <T> boolean compare(Iterator<T> left, Iterator<T> right) {
+    static <T> boolean equal(Iterator<T> left, Iterator<T> right) {
         while (left.hasNext() && right.hasNext())
             if (!left.next().equals(right.next()))
                 return false;
@@ -272,6 +270,6 @@ public class TestSameFringe {
     public void testCompare() {
         Tree root1 = parse("(((1 2) 3) 4)");
         Tree root2 = parse("(1 (2 (3 4)))");
-        assertTrue(compare(iterator(root1), iterator(root2)));
+        assertTrue(equal(iterator(root1), iterator(root2)));
     }
 }
