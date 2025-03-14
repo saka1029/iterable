@@ -223,50 +223,46 @@ public class TestSameFringe {
         assertFalse(same_fringe_by_iterator(parse("(1 (2 (3 (4 5))))"), parse("(((1 2) 3) 4)")));
     }
 
-    static class Serializer implements Iterable<Integer> {
-        final Tree root;
+    static Iterator<Integer> iterator(Tree tree) {
+        Deque<Tree> stack = new LinkedList<>();
+        stack.push(tree);
+        return new Iterator<>() {
 
-        public Serializer(Tree root) {
-            this.root = root;
-        }
+            @Override
+            public boolean hasNext() {
+                return !stack.isEmpty();
+            }
 
-        @Override
-        public Iterator<Integer> iterator() {
-            final Deque<Tree> stack = new LinkedList<>();
-            stack.push(root);
-            return new Iterator<>() {
-
-                @Override
-                public boolean hasNext() {
-                    return !stack.isEmpty();
+            @Override
+            public Integer next() {
+                if (stack.isEmpty())
+                    throw new NoSuchElementException();
+                while (stack.peek() instanceof Node) {
+                    Node node = (Node)stack.pop();
+                    stack.push(node.right);
+                    stack.push(node.left);
                 }
+                return ((Leaf)stack.pop()).value;
+            }
 
-                @Override
-                public Integer next() {
-                    if (stack.isEmpty())
-                        throw new NoSuchElementException();
-                    while (stack.peek() instanceof Node) {
-                        Node node = (Node)stack.pop();
-                        stack.push(node.right);
-                        stack.push(node.left);
-                    }
-                    return ((Leaf)stack.pop()).value;
-                }
-            };
-        }
+        };
+    }
+
+    static Iterable<Integer> iterable(Tree tree) {
+        return () -> iterator(tree);
     }
 
     @Test
     public void testSerializer() {
         Tree root1 = parse("(((1 2) 3) 4)");
-        Iterator<Integer> i1 = new Serializer(root1).iterator();
+        Iterator<Integer> i1 = iterator(root1);
         assertEquals(1, (int)i1.next());
         assertEquals(2, (int)i1.next());
         assertEquals(3, (int)i1.next());
         assertEquals(4, (int)i1.next());
         assertFalse(i1.hasNext());
         Tree root2 = parse("(1 (2 (3 4)))");
-        Iterator<Integer> i2 = new Serializer(root2).iterator();
+        Iterator<Integer> i2 = iterator(root2);
         assertEquals(1, (int)i2.next());
         assertEquals(2, (int)i2.next());
         assertEquals(3, (int)i2.next());
