@@ -1,5 +1,6 @@
 package saka1029.iterable;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
@@ -117,28 +118,22 @@ public class TestSameFringe {
         assertFalse(same_fringe(t1, t3));
     }
 
-    static void gen(Context<Integer> c, Tree tree) throws InterruptedException {
+    static void traverse(Context<Integer> c, Tree tree) throws InterruptedException {
         if (tree instanceof Leaf leaf)
             c.yield(leaf.value);
         else if (tree instanceof Node node) {
-            gen(c, node.left);
-            gen(c, node.right);
+            traverse(c, node.left);
+            traverse(c, node.right);
         }
     }
 
     static boolean same_fringe_by_iterator(Tree tree1, Tree tree2) {
-        try (Generator<Integer> g1 = Generator.of(c -> gen(c, tree1));
-            Generator<Integer> g2 = Generator.of(c -> gen(c, tree2))) {
-            System.out.printf("g1=%s%n", g1.stream().toList());
-            System.out.printf("g2=%s%n", g2.stream().toList());
-            Iterator<Integer> i1 = g1.iterator();
-            Iterator<Integer> i2 = g2.iterator();
-            while (i1.hasNext() && i2.hasNext()) {
-                Integer x1 = i1.next(), x2 = i2.next();
-                System.out.printf("x1 = %s x2 = %s%n", x1, x2);
-                if (!x1.equals(x2))
+        try (Generator<Integer> g1 = Generator.of(c -> traverse(c, tree1));
+            Generator<Integer> g2 = Generator.of(c -> traverse(c, tree2))) {
+            Iterator<Integer> i1 = g1.iterator(), i2 = g2.iterator();
+            while (i1.hasNext() && i2.hasNext())
+                if (!i1.next().equals(i2.next()))
                     return false;
-            }
             return !(i1.hasNext() || i2.hasNext());
         }
     }
@@ -147,8 +142,80 @@ public class TestSameFringe {
     public void testSameFringeByIterator() {
         Tree t1 = node(node(leaf(1), leaf(2)), leaf(3));
         Tree t2 = node(leaf(1), node(leaf(2), leaf(3)));
-        // assertTrue(same_fringe_by_iterator(t1, t2));
+        assertTrue(same_fringe_by_iterator(t1, t2));
         Tree t3 = node(leaf(1), node(leaf(2), node(leaf(3), leaf(4))));
         assertFalse(same_fringe_by_iterator(t1, t3));
+        Tree t4 = node(leaf(1), node(leaf(2), node(leaf(3), leaf(4))));
+        Tree t5 = node(node(node(leaf(1), leaf(2)), leaf(3)), leaf(4));
+        assertTrue(same_fringe_by_iterator(t4, t5));
+    }
+
+    /**
+     * parse tree string
+     * SYNTAX
+     * <pre>
+     * tree = node | leaf
+     * node = '(' tree tree ')'
+     * leaf = NUMBER
+     * </pre>
+     */
+    static Tree parse(String input) {
+        return new Object() {
+            int index = 0, ch = get();
+
+            int get() {
+                return ch = index < input.length() ? input.charAt(index++) : -1;
+            }
+
+            void spaces() {
+                while (Character.isWhitespace(ch))
+                    get();
+            }
+
+            Node node() {
+                get(); // skip '('
+                Tree left = tree(), right = tree();
+                spaces();
+                if (ch != ')')
+                    throw new RuntimeException("')' expected");
+                get(); // skip ')'
+                return new Node(left, right);
+            }
+
+            Leaf number() {
+                int value = 0;
+                while (Character.isDigit(ch)) {
+                    value = value * 10 + Character.digit(ch, 10);
+                    get();
+                }
+                return new Leaf(value);
+            }
+
+            Tree tree() {
+                spaces();
+                if (ch == -1)
+                    throw new RuntimeException("Unexpected end");
+                else if (ch == '(')
+                    return node();
+                else if (ch == ')')
+                    throw new RuntimeException("Unexpected ')'");
+                else if (Character.isDigit(ch))
+                    return number();
+                else
+                    throw new RuntimeException("Unexpected '%c'".formatted((char)ch));
+            }
+        }.tree();
+    }
+
+    @Test
+    public void testParse() {
+        assertEquals("(1 (2 (3 4)))", parse("(  1 (  2 (  3   4  )  )  )").toString());
+        assertEquals("(((1 2) 3) 4)", parse("(((1 2) 3) 4)").toString());
+    }
+
+    @Test
+    public void testSameFringeForParsedTree() {
+        assertTrue(same_fringe_by_iterator(parse("(1 (2 (3 4)))"), parse("(((1 2) 3) 4)")));
+        assertFalse(same_fringe_by_iterator(parse("(1 (2 (3 (4 5))))"), parse("(((1 2) 3) 4)")));
     }
 }

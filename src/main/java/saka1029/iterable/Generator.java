@@ -17,7 +17,7 @@ public class Generator<T> implements Iterable<T>, Closeable {
 
     static final Logger logger = Common.logger(Generator.class);
     static void info(String s) {
-        logger.info(s);
+        // logger.info(s);
     }
 
     /**
