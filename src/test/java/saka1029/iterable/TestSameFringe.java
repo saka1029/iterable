@@ -232,25 +232,25 @@ public class TestSameFringe {
 
         @Override
         public Iterator<Integer> iterator() {
-            final Deque<Tree> que = new LinkedList<>();
-            que.push(root);
+            final Deque<Tree> stack = new LinkedList<>();
+            stack.push(root);
             return new Iterator<>() {
 
                 @Override
                 public boolean hasNext() {
-                    return !que.isEmpty();
+                    return !stack.isEmpty();
                 }
 
                 @Override
                 public Integer next() {
-                    if (que.isEmpty())
+                    if (stack.isEmpty())
                         throw new NoSuchElementException();
-                    while (que.peek() instanceof Node) {
-                        Node node = (Node)que.pop();
-                        que.push(node.right);
-                        que.push(node.left);
+                    while (stack.peek() instanceof Node) {
+                        Node node = (Node)stack.pop();
+                        stack.push(node.right);
+                        stack.push(node.left);
                     }
-                    return ((Leaf)que.pop()).value;
+                    return ((Leaf)stack.pop()).value;
                 }
             };
         }
