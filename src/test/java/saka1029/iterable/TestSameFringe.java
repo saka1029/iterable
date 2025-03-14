@@ -2,9 +2,12 @@ package saka1029.iterable;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import org.junit.Test;
 import saka1029.iterable.Generator.Context;
@@ -217,5 +220,42 @@ public class TestSameFringe {
     public void testSameFringeForParsedTree() {
         assertTrue(same_fringe_by_iterator(parse("(1 (2 (3 4)))"), parse("(((1 2) 3) 4)")));
         assertFalse(same_fringe_by_iterator(parse("(1 (2 (3 (4 5))))"), parse("(((1 2) 3) 4)")));
+    }
+
+    static class Serializer {
+        final Deque<Tree> que = new LinkedList<>();
+
+        public Serializer(Tree root) {
+            this.que.push(root);
+        }
+
+        public Integer get() {
+            if (que.isEmpty())
+                return null;
+            while (que.peek() instanceof Node) {
+                Node node = (Node)que.pop();
+                que.push(node.right);
+                que.push(node.left);
+            }
+            return ((Leaf)que.pop()).value;
+        }
+    }
+
+    @Test
+    public void testSerializer() {
+        Tree root = parse("(((1 2) 3) 4)");
+        Serializer s = new Serializer(root);
+        assertEquals(1, (int)s.get());
+        assertEquals(2, (int)s.get());
+        assertEquals(3, (int)s.get());
+        assertEquals(4, (int)s.get());
+        assertNull(s.get());
+        Tree root2 = parse("(1 (2 (3 4)))");
+        Serializer s2 = new Serializer(root2);
+        assertEquals(1, (int)s2.get());
+        assertEquals(2, (int)s2.get());
+        assertEquals(3, (int)s2.get());
+        assertEquals(4, (int)s2.get());
+        assertNull(s.get());
     }
 }
