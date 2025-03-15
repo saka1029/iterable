@@ -281,4 +281,16 @@ public class TestSameFringe {
         Tree root2 = parse("(1 (2 (3 4)))");
         assertTrue(equal(iterator(root1), iterator(root2)));
     }
+
+    static Tree n(Tree left, Tree right) { return new Node(left, right); }
+    static Tree n(int left, Tree right) { return new Node(new Leaf(left), right); }
+    static Tree n(Tree left, int right) { return new Node(left, new Leaf(right)); }
+    static Tree n(int left, int right) { return new Node(new Leaf(left), new Leaf(right)); }
+
+    @Test
+    public void testCompare2() {
+        Tree root1 = n(n(n(1, 2), 3), 4);
+        Tree root2 = n(1, n(2, n(3, 4)));
+        assertTrue(equal(iterator(root1), iterator(root2)));
+    }
 }
