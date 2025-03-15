@@ -212,6 +212,11 @@ public class TestSameFringe {
         assertFalse(same_fringe_by_iterator(parse("(1 (2 (3 (4 5))))"), parse("(((1 2) 3) 4)")));
     }
 
+    /**
+     * Treeの各要素を左から右に向かって順に取り出します。
+     * @param tree
+     * @return
+     */
     static Iterator<Integer> iterator(Tree tree) {
         Deque<Tree> stack = new LinkedList<>();
         stack.push(tree);
@@ -224,14 +229,18 @@ public class TestSameFringe {
 
             @Override
             public Integer next() {
-                if (stack.isEmpty())
-                    throw new NoSuchElementException();
-                while (stack.peek() instanceof Node) {
-                    Node node = (Node)stack.pop();
-                    stack.push(node.right);
-                    stack.push(node.left);
+                while (!stack.isEmpty()) {
+                    Tree tree = stack.pop();
+                    if (tree instanceof Leaf leaf) {
+                        return leaf.value;
+                    } else if (tree instanceof Node node) {
+                        // Nodeの場合はその子要素をスタックにプッシュします。
+                        stack.push(node.right); // 後で処理するrightを先にプッシュします。
+                        stack.push(node.left);  // 先に処理するleftを後にプッシュします。
+                    } else
+                        throw new RuntimeException("Unknown object '%s'".formatted(tree));
                 }
-                return ((Leaf)stack.pop()).value;
+                throw new NoSuchElementException();
             }
 
         };
