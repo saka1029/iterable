@@ -174,7 +174,7 @@ public class TestGenerator {
         }
     }
 
-    static int[][] permutation(int n, int k) {
+    static int[][] permutations(int n, int k) {
         try (Generator<int[]> generator = generate(context -> {
             new Object() {
                 int[] selected = new int[k];
@@ -199,27 +199,71 @@ public class TestGenerator {
     }
 
     @Test
-    public void testPermutaion() {
-        assertArrayEquals(PERM_0_0, permutation(0, 0));
-        assertArrayEquals(PERM_0_1, permutation(0, 1));
-        assertArrayEquals(PERM_0_2, permutation(0, 2));
-        assertArrayEquals(PERM_0_3, permutation(0, 3));
-        assertArrayEquals(PERM_1_0, permutation(1, 0));
-        assertArrayEquals(PERM_1_1, permutation(1, 1));
-        assertArrayEquals(PERM_1_2, permutation(1, 2));
-        assertArrayEquals(PERM_1_3, permutation(1, 3));
-        assertArrayEquals(PERM_2_0, permutation(2, 0));
-        assertArrayEquals(PERM_2_1, permutation(2, 1));
-        assertArrayEquals(PERM_2_2, permutation(2, 2));
-        assertArrayEquals(PERM_2_3, permutation(2, 3));
-        assertArrayEquals(PERM_3_0, permutation(3, 0));
-        assertArrayEquals(PERM_3_1, permutation(3, 1));
-        assertArrayEquals(PERM_3_2, permutation(3, 2));
-        assertArrayEquals(PERM_3_3, permutation(3, 3));
-        assertArrayEquals(PERM_4_0, permutation(4, 0));
-        assertArrayEquals(PERM_4_1, permutation(4, 1));
-        assertArrayEquals(PERM_4_2, permutation(4, 2));
-        assertArrayEquals(PERM_4_3, permutation(4, 3));
-        assertArrayEquals(PERM_4_4, permutation(4, 4));
+    public void testPermutaions() {
+        assertArrayEquals(PERM_0_0, permutations(0, 0));
+        assertArrayEquals(PERM_0_1, permutations(0, 1));
+        assertArrayEquals(PERM_0_2, permutations(0, 2));
+        assertArrayEquals(PERM_0_3, permutations(0, 3));
+        assertArrayEquals(PERM_1_0, permutations(1, 0));
+        assertArrayEquals(PERM_1_1, permutations(1, 1));
+        assertArrayEquals(PERM_1_2, permutations(1, 2));
+        assertArrayEquals(PERM_1_3, permutations(1, 3));
+        assertArrayEquals(PERM_2_0, permutations(2, 0));
+        assertArrayEquals(PERM_2_1, permutations(2, 1));
+        assertArrayEquals(PERM_2_2, permutations(2, 2));
+        assertArrayEquals(PERM_2_3, permutations(2, 3));
+        assertArrayEquals(PERM_3_0, permutations(3, 0));
+        assertArrayEquals(PERM_3_1, permutations(3, 1));
+        assertArrayEquals(PERM_3_2, permutations(3, 2));
+        assertArrayEquals(PERM_3_3, permutations(3, 3));
+        assertArrayEquals(PERM_4_0, permutations(4, 0));
+        assertArrayEquals(PERM_4_1, permutations(4, 1));
+        assertArrayEquals(PERM_4_2, permutations(4, 2));
+        assertArrayEquals(PERM_4_3, permutations(4, 3));
+        assertArrayEquals(PERM_4_4, permutations(4, 4));
+    }
+
+    static void permutation(Generator.Context<int[]> context, int n, int k) throws InterruptedException {
+        int[] selected = new int[k];
+        boolean[] used = new boolean[n];
+
+        new Object() {
+            void solve(int i) throws InterruptedException {
+                if (i >= k)
+                    context.yield(selected.clone());
+                else
+                    for (int j = 0; j < n; ++j)
+                        if (!used[j]) {
+                            used[j] = true;
+                            selected[i] = j;
+                            solve(i + 1);
+                            used[j] = false;
+                        }
+            }
+        }.solve(0);
+    }
+
+    @Test
+    public void testPermutation() {
+        try (Generator<int[]> g = Generator.of(c -> permutation(c, 0, 0))) { assertArrayEquals(PERM_0_0, int2dArray(g)); }
+        try (Generator<int[]> g = Generator.of(c -> permutation(c, 0, 1))) { assertArrayEquals(PERM_0_1, int2dArray(g)); }
+        try (Generator<int[]> g = Generator.of(c -> permutation(c, 0, 2))) { assertArrayEquals(PERM_0_2, int2dArray(g)); }
+        try (Generator<int[]> g = Generator.of(c -> permutation(c, 0, 3))) { assertArrayEquals(PERM_0_3, int2dArray(g)); }
+        try (Generator<int[]> g = Generator.of(c -> permutation(c, 1, 0))) { assertArrayEquals(PERM_1_0, int2dArray(g)); }
+        try (Generator<int[]> g = Generator.of(c -> permutation(c, 1, 1))) { assertArrayEquals(PERM_1_1, int2dArray(g)); }
+        try (Generator<int[]> g = Generator.of(c -> permutation(c, 1, 2))) { assertArrayEquals(PERM_1_2, int2dArray(g)); }
+        try (Generator<int[]> g = Generator.of(c -> permutation(c, 1, 3))) { assertArrayEquals(PERM_1_3, int2dArray(g)); }
+        try (Generator<int[]> g = Generator.of(c -> permutation(c, 2, 0))) { assertArrayEquals(PERM_2_0, int2dArray(g)); }
+        try (Generator<int[]> g = Generator.of(c -> permutation(c, 2, 1))) { assertArrayEquals(PERM_2_1, int2dArray(g)); }
+        try (Generator<int[]> g = Generator.of(c -> permutation(c, 2, 2))) { assertArrayEquals(PERM_2_2, int2dArray(g)); }
+        try (Generator<int[]> g = Generator.of(c -> permutation(c, 2, 3))) { assertArrayEquals(PERM_2_3, int2dArray(g)); }
+        try (Generator<int[]> g = Generator.of(c -> permutation(c, 3, 0))) { assertArrayEquals(PERM_3_0, int2dArray(g)); }
+        try (Generator<int[]> g = Generator.of(c -> permutation(c, 3, 1))) { assertArrayEquals(PERM_3_1, int2dArray(g)); }
+        try (Generator<int[]> g = Generator.of(c -> permutation(c, 3, 2))) { assertArrayEquals(PERM_3_2, int2dArray(g)); }
+        try (Generator<int[]> g = Generator.of(c -> permutation(c, 3, 3))) { assertArrayEquals(PERM_3_3, int2dArray(g)); }
+        try (Generator<int[]> g = Generator.of(c -> permutation(c, 4, 0))) { assertArrayEquals(PERM_4_0, int2dArray(g)); }
+        try (Generator<int[]> g = Generator.of(c -> permutation(c, 4, 1))) { assertArrayEquals(PERM_4_1, int2dArray(g)); }
+        try (Generator<int[]> g = Generator.of(c -> permutation(c, 4, 2))) { assertArrayEquals(PERM_4_2, int2dArray(g)); }
+        try (Generator<int[]> g = Generator.of(c -> permutation(c, 4, 3))) { assertArrayEquals(PERM_4_3, int2dArray(g)); }
     }
 }
